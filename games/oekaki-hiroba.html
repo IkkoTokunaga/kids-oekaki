@@ -28,6 +28,7 @@
 
     body {
       min-height: 100dvh;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
       background:
@@ -37,9 +38,13 @@
       animation:
         oekakiSkyShift 16s ease-in-out infinite alternate,
         dayNightFilter 300s linear infinite;
-      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+      padding:
+        env(safe-area-inset-top, 0)
+        env(safe-area-inset-right, 0)
+        max(0.45rem, env(safe-area-inset-bottom, 0))
+        env(safe-area-inset-left, 0);
       position: relative;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     body::before {
@@ -79,7 +84,7 @@
       position: relative;
       z-index: 1;
       flex-shrink: 0;
-      padding: 0.35rem 0.55rem 0.22rem;
+      padding: 0.22rem 0.55rem 0.12rem;
       text-align: center;
     }
 
@@ -87,7 +92,10 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 0.2rem;
+      position: absolute;
+      left: 0.55rem;
+      top: 0.22rem;
+      margin: 0;
       padding: 0.28rem 0.72rem;
       font-size: clamp(0.75rem, 2.9vw, 0.9rem);
       font-weight: 800;
@@ -105,18 +113,23 @@
     }
 
     h1 {
-      margin: 0;
-      font-size: clamp(1.02rem, 4.2vw, 1.38rem);
-      font-weight: 900;
-      color: #e65100;
-      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.9);
+      margin: 0 auto;
+      min-height: 2rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(0.98rem, 3.8vw, 1.18rem);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.01em;
+      text-shadow: none;
     }
 
     .hint {
-      margin: 0.1rem 0 0;
-      font-size: clamp(0.72rem, 2.6vw, 0.82rem);
-      font-weight: 700;
-      color: #5d4037;
+      margin: 0.04rem 0 0;
+      font-size: clamp(0.68rem, 2.3vw, 0.76rem);
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.86);
     }
 
     .toolbar {
