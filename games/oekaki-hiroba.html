@@ -995,6 +995,7 @@
             eraser = false;
             color = c;
           }
+          closeAllPopups();
         });
       });
 
@@ -1005,6 +1006,7 @@
           });
           b.classList.add("on");
           lineW = parseInt(b.getAttribute("data-w"), 10);
+          closeAllPopups();
         });
       });
 
@@ -1017,6 +1019,7 @@
         b.classList.add("on");
         activeStamp = b.getAttribute("data-stamp");
         eraser = false;
+        closeAllPopups();
       });
 
       document.getElementById("btnClear").addEventListener("click", function () {
@@ -1038,6 +1041,7 @@
           if (type === "space") drawSpaceTemplate();
           if (type === "castle") drawCastleTemplate();
           if (type === "garden") drawGardenTemplate();
+          closeAllPopups();
         });
       });
 
