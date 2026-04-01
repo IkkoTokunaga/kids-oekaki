@@ -13,7 +13,7 @@ check() {
 }
 
 check "おえかき ひろば"
-check 'href="index.html"'
+check 'href="/"'
 check "drawCanvas"
 check "ぜんぶ けす"
 check "スタンプ（200しゅるい / いちらん）"

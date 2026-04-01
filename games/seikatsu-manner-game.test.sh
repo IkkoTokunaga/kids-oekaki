@@ -19,7 +19,7 @@ check() {
   fi
 }
 
-check "href=\"index.html\""
+check "href=\"/\""
 check "TOPへ もどる"
 check "げんかんでは くつを ぬいだら"
 check "げんかんに はいったら うわぎは"

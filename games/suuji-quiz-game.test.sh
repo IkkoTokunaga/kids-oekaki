@@ -19,7 +19,7 @@ check() {
 }
 
 check "すうじ クイズ"
-check 'href="index.html"'
+check 'href="/"'
 check "var ROUNDS = 10"
 check "shufflePick"
 check "pinpon"
