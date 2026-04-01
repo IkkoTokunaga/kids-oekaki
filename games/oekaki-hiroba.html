@@ -125,7 +125,9 @@
     }
 
     .popup-card {
-      width: min(960px, 96vw);
+      width: min(840px, 96vw);
+      max-width: 840px;
+      min-width: min(320px, 96vw);
       max-height: 84dvh;
       background: #fffef8;
       border: 3px solid #ffb74d;
@@ -169,6 +171,7 @@
       overflow: auto;
       display: flex;
       flex-wrap: wrap;
+      align-content: flex-start;
       gap: 0.45rem;
     }
 
@@ -613,10 +616,6 @@
       function renderStampAccordion() {
         var root = document.getElementById("stampAccordion");
         var html = "";
-        html += '<div class="stamp-group"><summary>えんぴつ/けしゴム</summary><div class="popup-body">';
-        html += '<button type="button" class="stamp-btn on" data-stamp="">✏️</button>';
-        html += '<button type="button" class="stamp-btn" data-stamp="eraser-mode">🧽</button>';
-        html += "</div></div>";
         html += '<div class="stamp-group"><summary>スタンプ いちらん（' + STAMPS.length + '）</summary><div class="popup-body">';
         STAMPS.forEach(function (emj) {
           html += '<button type="button" class="stamp-btn" data-stamp="' + emj + '">' + emj + "</button>";
@@ -985,6 +984,10 @@
             s.classList.remove("on");
           });
           b.classList.add("on");
+          activeStamp = "";
+          document.querySelectorAll(".stamp-btn").forEach(function (s) {
+            s.classList.remove("on");
+          });
           var c = b.getAttribute("data-c");
           if (c === "eraser") {
             eraser = true;
@@ -1013,12 +1016,7 @@
         });
         b.classList.add("on");
         activeStamp = b.getAttribute("data-stamp");
-        if (activeStamp === "eraser-mode") {
-          activeStamp = "";
-          eraser = true;
-        } else {
-          eraser = false;
-        }
+        eraser = false;
       });
 
       document.getElementById("btnClear").addEventListener("click", function () {
