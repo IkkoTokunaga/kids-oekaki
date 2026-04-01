@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    ports:
+      - "3000:3000"
+    tty: true
+
+  web:
+    image: nginx:alpine
+    volumes:
+      - ./games:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"

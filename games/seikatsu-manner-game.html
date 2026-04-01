@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>せいかつマナー すごろく</title>
+  <style>
+    :root {
+      --sky-top: #87ceeb;
+      --sky-bottom: #b8e8ff;
+      --grass: #6bc96b;
+      --path: #d4a574;
+      --path-edge: #b8895a;
+      --btn: #fff9e6;
+      --btn-border: #e8c84a;
+      --btn-active: #ffe566;
+      --text: #2d3a2d;
+      --shadow: rgba(45, 58, 45, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 42%, var(--grass) 42%, #4a9f4a 100%);
+      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+    }
+
+    .clouds {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 38%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      filter: blur(0.5px);
+      animation: drift 28s linear infinite;
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+      position: absolute;
+      background: inherit;
+      border-radius: 50%;
+    }
+
+    .cloud.c1 {
+      width: 72px;
+      height: 28px;
+      top: 12%;
+      left: 8%;
+      animation-duration: 32s;
+    }
+
+    .cloud.c1::before {
+      width: 40px;
+      height: 40px;
+      top: -18px;
+      left: 10px;
+    }
+
+    .cloud.c1::after {
+      width: 48px;
+      height: 36px;
+      top: -14px;
+      left: 36px;
+    }
+
+    .cloud.c2 {
+      width: 90px;
+      height: 32px;
+      top: 22%;
+      right: 5%;
+      animation-duration: 26s;
+      animation-delay: -8s;
+    }
+
+    .cloud.c2::before {
+      width: 44px;
+      height: 44px;
+      top: -20px;
+      left: 14px;
+    }
+
+    .cloud.c2::after {
+      width: 52px;
+      height: 38px;
+      top: -16px;
+      left: 42px;
+    }
+
+    @keyframes drift {
+      0% { transform: translateX(0); opacity: 0.9; }
+      50% { transform: translateX(12px); opacity: 1; }
+      100% { transform: translateX(0); opacity: 0.9; }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.75rem 0.75rem 1rem;
+      gap: 0.75rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 5vw, 1.75rem);
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 2px 4px var(--shadow);
+      font-weight: 800;
+    }
+
+    .track-area {
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 1rem;
+      padding: 0.6rem 0.75rem 0.85rem;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+
+    .track-label {
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+      margin-bottom: 0.35rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .track {
+      position: relative;
+      height: 3.55rem;
+      background: linear-gradient(180deg, var(--path) 0%, #c4956a 100%);
+      border-radius: 999px;
+      border: 4px solid var(--path-edge);
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35);
+      overflow: visible;
+    }
+
+    .track-inner {
+      position: absolute;
+      inset: 0 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .step-dot {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0.45;
+    }
+
+    .step-dot::after {
+      content: "";
+      width: 0.42rem;
+      height: 0.42rem;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.75);
+      border: 2px solid var(--path-edge);
+    }
+
+    .step-dot.done {
+      opacity: 1;
+    }
+
+    .step-dot.done::after {
+      background: #fff176;
+      box-shadow: 0 0 0 2px #f9a825;
+    }
+
+    .runner-wrap {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 0;
+      pointer-events: none;
+      padding: 0 0.5rem;
+    }
+
+    .runner {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -65%);
+      font-size: clamp(2rem, 9vw, 2.75rem);
+      line-height: 1;
+      transition: left 0.65s cubic-bezier(0.34, 1.2, 0.64, 1);
+      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.2));
+    }
+
+    .runner.bounce {
+      animation: hop 0.45s ease;
+    }
+
+    @keyframes hop {
+      0%, 100% { transform: translate(-50%, -65%) scale(1); }
+      40% { transform: translate(-50%, -95%) scale(1.08); }
+    }
+
+    .goal-house {
+      position: absolute;
+      right: 0.15rem;
+      top: 50%;
+      transform: translateY(-58%);
+      font-size: clamp(1.65rem, 6.5vw, 2.15rem);
+      opacity: 0.85;
+    }
+
+    .quiz-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 1.25rem;
+      padding: 1.25rem 1rem 1.2rem;
+      box-shadow: 0 6px 20px var(--shadow);
+      min-height: 9rem;
+    }
+
+    .question {
+      font-size: clamp(1.65rem, 6.8vw, 2.55rem);
+      font-weight: 800;
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+      text-align: center;
+      margin: 0 0 0.6rem;
+      padding: 0.35rem 0.25rem 0.5rem;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: clamp(0.95rem, 3.6vw, 1.15rem);
+      font-weight: 700;
+      color: #4a6b4a;
+      margin: 0;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: auto;
+      padding-top: 0.75rem;
+    }
+
+    @media (min-width: 520px) {
+      .choices {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.15rem;
+      }
+    }
+
+    .choice-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 6.85rem;
+      padding: 1.1rem 0.75rem;
+      font-size: clamp(1.35rem, 5.5vw, 1.75rem);
+      font-weight: 800;
+      border: 7px solid var(--choice-border, var(--btn-border));
+      border-radius: 1.35rem;
+      background: var(--choice-bg, var(--btn));
+      color: #263238;
+      cursor: pointer;
+      box-shadow: 0 7px 0 var(--choice-shadow, #c9a82e);
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.15s ease,
+        border-color 0.15s ease,
+        filter 0.15s ease;
+    }
+
+    .choices .choice-btn:nth-child(1) {
+      --choice-bg: #ffcdd2;
+      --choice-border: #e57373;
+      --choice-shadow: #c62828;
+    }
+
+    .choices .choice-btn:nth-child(2) {
+      --choice-bg: #bbdefb;
+      --choice-border: #42a5f5;
+      --choice-shadow: #1565c0;
+    }
+
+    .choices .choice-btn:nth-child(3) {
+      --choice-bg: #c8e6c9;
+      --choice-border: #66bb6a;
+      --choice-shadow: #2e7d32;
+    }
+
+    .choices .choice-btn:nth-child(4) {
+      --choice-bg: #fff9c4;
+      --choice-border: #ffee58;
+      --choice-shadow: #f9a825;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .choices .choice-btn:nth-child(1):hover:not(:disabled) {
+        transform: scale(1.06) translateY(-2px);
+        background: #ef9a9a;
+        border-color: #e53935;
+        box-shadow:
+          0 8px 0 #b71c1c,
+          0 0 0 4px rgba(229, 57, 53, 0.45),
+          0 12px 24px rgba(198, 40, 40, 0.35);
+        filter: brightness(1.02);
+        z-index: 1;
+        position: relative;
+      }
+
+      .choices .choice-btn:nth-child(2):hover:not(:disabled) {
+        transform: scale(1.06) translateY(-2px);
+        background: #90caf9;
+        border-color: #1e88e5;
+        box-shadow:
+          0 8px 0 #0d47a1,
+          0 0 0 4px rgba(30, 136, 229, 0.45),
+          0 12px 24px rgba(13, 71, 161, 0.3);
+        filter: brightness(1.02);
+        z-index: 1;
+        position: relative;
+      }
+
+      .choices .choice-btn:nth-child(3):hover:not(:disabled) {
+        transform: scale(1.06) translateY(-2px);
+        background: #a5d6a7;
+        border-color: #43a047;
+        box-shadow:
+          0 8px 0 #1b5e20,
+          0 0 0 4px rgba(67, 160, 71, 0.45),
+          0 12px 24px rgba(46, 125, 50, 0.3);
+        filter: brightness(1.02);
+        z-index: 1;
+        position: relative;
+      }
+
+      .choices .choice-btn:nth-child(4):hover:not(:disabled) {
+        transform: scale(1.06) translateY(-2px);
+        background: #fff59d;
+        border-color: #fdd835;
+        box-shadow:
+          0 8px 0 #ef6c00,
+          0 0 0 4px rgba(251, 192, 45, 0.55),
+          0 12px 24px rgba(245, 127, 23, 0.35);
+        filter: brightness(1.02);
+        z-index: 1;
+        position: relative;
+      }
+    }
+
+    .choices .choice-btn:nth-child(1):focus-visible:not(:disabled) {
+      outline: none;
+      transform: scale(1.05) translateY(-1px);
+      background: #ef9a9a;
+      border-color: #c62828;
+      box-shadow:
+        0 6px 0 #b71c1c,
+        0 0 0 4px rgba(229, 57, 53, 0.55),
+        0 10px 20px rgba(183, 28, 28, 0.28);
+      z-index: 1;
+      position: relative;
+    }
+
+    .choices .choice-btn:nth-child(2):focus-visible:not(:disabled) {
+      outline: none;
+      transform: scale(1.05) translateY(-1px);
+      background: #90caf9;
+      border-color: #1565c0;
+      box-shadow:
+        0 6px 0 #0d47a1,
+        0 0 0 4px rgba(25, 118, 210, 0.5),
+        0 10px 20px rgba(13, 71, 161, 0.28);
+      z-index: 1;
+      position: relative;
+    }
+
+    .choices .choice-btn:nth-child(3):focus-visible:not(:disabled) {
+      outline: none;
+      transform: scale(1.05) translateY(-1px);
+      background: #a5d6a7;
+      border-color: #2e7d32;
+      box-shadow:
+        0 6px 0 #1b5e20,
+        0 0 0 4px rgba(46, 125, 50, 0.5),
+        0 10px 20px rgba(27, 94, 32, 0.28);
+      z-index: 1;
+      position: relative;
+    }
+
+    .choices .choice-btn:nth-child(4):focus-visible:not(:disabled) {
+      outline: none;
+      transform: scale(1.05) translateY(-1px);
+      background: #fff59d;
+      border-color: #fbc02d;
+      box-shadow:
+        0 6px 0 #ef6c00,
+        0 0 0 4px rgba(251, 192, 45, 0.55),
+        0 10px 20px rgba(245, 127, 23, 0.28);
+      z-index: 1;
+      position: relative;
+    }
+
+    .choices .choice-btn:nth-child(1):active:not(:disabled) {
+      transform: translateY(5px) scale(1.02);
+      box-shadow: 0 2px 0 #c62828;
+    }
+
+    .choices .choice-btn:nth-child(2):active:not(:disabled) {
+      transform: translateY(5px) scale(1.02);
+      box-shadow: 0 2px 0 #1565c0;
+    }
+
+    .choices .choice-btn:nth-child(3):active:not(:disabled) {
+      transform: translateY(5px) scale(1.02);
+      box-shadow: 0 2px 0 #2e7d32;
+    }
+
+    .choices .choice-btn:nth-child(4):active:not(:disabled) {
+      transform: translateY(5px) scale(1.02);
+      box-shadow: 0 2px 0 #f9a825;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .choice-btn:active:not(:disabled):hover {
+        transform: translateY(5px) scale(1.03);
+      }
+    }
+
+    .choice-btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: 0 2px 0 #aaa;
+    }
+
+    .choice-btn.wrong-shake {
+      animation: wrongShake 0.65s ease-in-out;
+    }
+
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      12% { transform: translateX(-14px) rotate(-3deg); }
+      24% { transform: translateX(12px) rotate(3deg); }
+      36% { transform: translateX(-10px) rotate(-2deg); }
+      48% { transform: translateX(8px) rotate(2deg); }
+      60% { transform: translateX(-6px) rotate(-1deg); }
+      72% { transform: translateX(4px) rotate(1deg); }
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .overlay.feedback-correct {
+      background: radial-gradient(circle at 50% 30%, rgba(255, 249, 196, 0.95) 0%, rgba(255, 213, 79, 0.55) 35%, rgba(255, 152, 0, 0.35) 60%, rgba(0, 0, 0, 0.2) 100%);
+      animation: correctBgPulse 0.7s ease-in-out infinite alternate;
+    }
+
+    .overlay.feedback-wrong {
+      background:
+        radial-gradient(ellipse 120% 80% at 50% 100%, rgba(55, 71, 79, 0.55) 0%, rgba(96, 125, 139, 0.45) 40%, rgba(38, 50, 56, 0.65) 100%),
+        rgba(0, 0, 0, 0.35);
+      animation: wrongBgPulse 0.55s ease-in-out infinite alternate;
+    }
+
+    @keyframes wrongBgPulse {
+      0% { filter: brightness(0.95) saturate(0.85); }
+      100% { filter: brightness(1.05) saturate(1); }
+    }
+
+    @keyframes correctBgPulse {
+      0% { filter: brightness(1) saturate(1); }
+      100% { filter: brightness(1.08) saturate(1.25); }
+    }
+
+    .confetti-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -16px;
+      left: var(--cx, 50%);
+      width: var(--cs, 10px);
+      height: var(--cs, 10px);
+      border-radius: 2px;
+      background: hsl(var(--ch, 48) 92% 58%);
+      opacity: 0;
+      animation: confettiFall var(--cdur, 1.5s) ease-in forwards;
+      animation-delay: var(--cdelay, 0s);
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(var(--dx, 0px), 110vh, 0) rotate(var(--rot, 540deg)) scale(0.85);
+        opacity: 0.85;
+      }
+    }
+
+    .overlay-card {
+      position: relative;
+      z-index: 2;
+      background: #fff;
+      border-radius: 1.5rem;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      max-width: 92vw;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      border: 5px solid #ffd54f;
+    }
+
+    .overlay-card.correct-burst {
+      border-width: 6px;
+      border-color: #ffca28;
+      animation:
+        cardPopIn 0.45s cubic-bezier(0.34, 1.45, 0.64, 1) both,
+        correctRing 0.9s ease-in-out infinite;
+      box-shadow:
+        0 0 0 0 rgba(255, 235, 59, 0.7),
+        0 16px 48px rgba(255, 152, 0, 0.45),
+        0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .overlay-card.wrong-burst {
+      border-width: 6px;
+      border-color: #78909c;
+      background: linear-gradient(180deg, #eceff1 0%, #cfd8dc 100%);
+      animation: wrongCardHang 0.75s ease-in-out infinite;
+      box-shadow:
+        0 0 0 3px rgba(120, 144, 156, 0.5),
+        0 14px 36px rgba(38, 50, 56, 0.35),
+        inset 0 2px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes wrongCardHang {
+      0%, 100% { transform: rotate(-2.5deg) translateY(0) scale(1); }
+      50% { transform: rotate(2.5deg) translateY(5px) scale(0.98); }
+    }
+
+    .overlay-card.wrong-burst h2 {
+      font-size: clamp(2rem, 9vw, 3rem);
+      color: #37474f;
+      text-shadow:
+        0 2px 0 rgba(255, 255, 255, 0.85),
+        0 4px 8px rgba(38, 50, 56, 0.25);
+      animation: wrongTitleDroop 0.55s ease-in-out infinite alternate;
+    }
+
+    @keyframes wrongTitleDroop {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(3px) scale(0.99); }
+    }
+
+    .overlay-card.wrong-burst #feedbackSub {
+      font-size: clamp(1.25rem, 5vw, 1.65rem);
+      font-weight: 900;
+      color: #546e7a;
+      letter-spacing: 0.04em;
+    }
+
+    .wrong-buzzer {
+      font-size: clamp(1.5rem, 6.5vw, 2.2rem);
+      font-weight: 900;
+      color: #455a64;
+      text-shadow: 0 1px 0 #fff;
+      margin-bottom: 0.35rem;
+      letter-spacing: 0.12em;
+      animation: buzzerPulse 0.35s ease-in-out infinite;
+    }
+
+    @keyframes buzzerPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.06); opacity: 0.9; }
+    }
+
+    @keyframes cardPopIn {
+      0% { transform: scale(0.35) rotate(-6deg); opacity: 0.5; }
+      70% { transform: scale(1.06) rotate(2deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes correctRing {
+      0%, 100% {
+        box-shadow:
+          0 0 0 0 rgba(255, 235, 59, 0.55),
+          0 0 0 0 rgba(255, 87, 34, 0.35),
+          0 16px 48px rgba(255, 152, 0, 0.4),
+          0 12px 40px rgba(0, 0, 0, 0.15);
+      }
+      50% {
+        box-shadow:
+          0 0 0 14px rgba(255, 235, 59, 0),
+          0 0 0 28px rgba(255, 87, 34, 0),
+          0 20px 56px rgba(255, 193, 7, 0.55),
+          0 12px 40px rgba(0, 0, 0, 0.12);
+      }
+    }
+
+    .overlay-card h2 {
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.6rem, 6vw, 2.4rem);
+      font-weight: 900;
+    }
+
+    .overlay-card.correct-burst h2 {
+      font-size: clamp(2.1rem, 9vw, 3.2rem);
+      line-height: 1.15;
+      color: #e65100;
+      text-shadow:
+        0 0 12px rgba(255, 235, 59, 0.9),
+        0 3px 0 #fff9c4,
+        0 5px 0 #ff9800,
+        2px 6px 0 rgba(230, 81, 0, 0.35);
+      animation: titleWiggle 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes titleWiggle {
+      0% { transform: rotate(-1.5deg) scale(1); }
+      100% { transform: rotate(1.5deg) scale(1.03); }
+    }
+
+    .overlay-card p {
+      margin: 0;
+      font-size: clamp(1rem, 3.5vw, 1.2rem);
+      font-weight: 700;
+    }
+
+    .overlay-card.correct-burst p {
+      font-size: clamp(1.2rem, 4.5vw, 1.55rem);
+      color: #1565c0;
+      font-weight: 800;
+      animation: subBounce 0.45s ease-in-out infinite alternate;
+    }
+
+    @keyframes subBounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-3px); }
+    }
+
+    .sparkles {
+      font-size: clamp(1.4rem, 5vw, 1.85rem);
+      line-height: 1.35;
+      margin-bottom: 0.4rem;
+      font-weight: 900;
+      color: #f57f17;
+      text-shadow: 0 2px 0 #fffde7;
+      animation: sparkle 0.55s ease-in-out infinite;
+    }
+
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1) rotate(-2deg); opacity: 1; }
+      50% { transform: scale(1.12) rotate(2deg); opacity: 0.95; }
+    }
+
+    .finish-confetti {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .finish-screen {
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .finish-screen.finish-celebrate {
+      background: linear-gradient(165deg, #fffde7 0%, #e8f5e9 45%, #c8e6c9 100%);
+      border: 6px solid #ffd54f;
+      box-shadow:
+        0 0 0 4px rgba(255, 193, 7, 0.6),
+        0 0 28px rgba(255, 152, 0, 0.45),
+        0 10px 32px var(--shadow);
+      animation: finishPanelGlow 0.9s ease-in-out infinite alternate;
+    }
+
+    @keyframes finishPanelGlow {
+      0% {
+        box-shadow:
+          0 0 0 4px rgba(255, 193, 7, 0.55),
+          0 0 22px rgba(255, 193, 7, 0.4),
+          0 10px 32px var(--shadow);
+      }
+      100% {
+        box-shadow:
+          0 0 0 8px rgba(255, 241, 118, 0.35),
+          0 0 40px rgba(255, 152, 0, 0.55),
+          0 12px 36px var(--shadow);
+      }
+    }
+
+    .finish-screen .finish-burst {
+      font-size: clamp(1.7rem, 6.5vw, 2.35rem);
+      line-height: 1.45;
+      margin: 0 0 0.4rem;
+      font-weight: 900;
+      animation: finishBurstDance 1.2s ease-in-out infinite;
+    }
+
+    @keyframes finishBurstDance {
+      0%, 100% { transform: rotate(-4deg) scale(1); }
+      50% { transform: rotate(4deg) scale(1.08); }
+    }
+
+    .finish-screen .big {
+      font-size: clamp(2.1rem, 8vw, 3rem);
+      font-weight: 900;
+      margin: 0 0 0.5rem;
+      color: #2e7d32;
+    }
+
+    .finish-screen.finish-celebrate .big {
+      font-size: clamp(2.5rem, 10vw, 3.75rem);
+      animation: finishTitlePop 0.65s ease-in-out infinite alternate;
+      text-shadow:
+        0 0 22px rgba(255, 213, 79, 0.9),
+        0 3px 0 #fff9c4,
+        0 6px 0 #43a047,
+        0 10px 18px rgba(46, 125, 50, 0.35);
+    }
+
+    @keyframes finishTitlePop {
+      0% { transform: scale(1) translateY(0); }
+      100% { transform: scale(1.05) translateY(-3px); }
+    }
+
+    .finish-screen .finish-msg {
+      font-size: clamp(1.15rem, 4.2vw, 1.45rem);
+      font-weight: 700;
+    }
+
+    .finish-screen.finish-celebrate .finish-msg {
+      font-size: clamp(1.28rem, 5vw, 1.65rem);
+      font-weight: 800;
+      color: #1b5e20;
+    }
+
+    .restart-btn {
+      margin-top: 1rem;
+      min-height: 3.5rem;
+      padding: 0 1.75rem;
+      font-size: clamp(1.15rem, 4.5vw, 1.35rem);
+      font-weight: 800;
+      border: 4px solid #43a047;
+      border-radius: 999px;
+      background: #a5d6a7;
+      color: #1b5e20;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #2e7d32;
+    }
+
+    .restart-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #2e7d32;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .top-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      margin: 0 0 0.6rem;
+      padding: 0.45rem 0.85rem;
+      font-size: clamp(0.88rem, 3.2vw, 1rem);
+      font-weight: 800;
+      color: #fff;
+      text-decoration: none;
+      text-shadow: 0 1px 3px var(--shadow);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.22);
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      align-self: center;
+    }
+
+    .top-back:active {
+      opacity: 0.85;
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+  <div class="clouds" aria-hidden="true">
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+  </div>
+
+  <div class="wrap">
+    <a class="top-back" href="index.html">TOPへ もどる</a>
+    <h1>せいかつマナー すごろく</h1>
+
+    <section class="track-area" aria-label="すすみかた">
+      <div class="track-label">ただしいと すすむよ 🏃</div>
+      <div class="track" id="track">
+        <div class="track-inner" id="stepDots"></div>
+        <span class="goal-house" aria-hidden="true">🏠</span>
+        <div class="runner-wrap">
+          <div class="runner" id="runner" role="img" aria-label="きゃらくたー">🏃</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quiz-panel" id="quizPanel">
+      <p class="question" id="questionText"></p>
+      <p class="progress-text" id="progressText"></p>
+      <div class="choices" id="choices"></div>
+    </section>
+
+    <section class="quiz-panel finish-screen hidden" id="finishPanel" aria-live="polite">
+      <div class="finish-burst" aria-hidden="true">🏆 ⭐ きらきら ⭐ 🏆</div>
+      <p class="big">ゴール！ おめでとう！🎉</p>
+      <p class="finish-msg">じゅうもん ぜんぶ クリア！すごい！えらい！</p>
+      <button type="button" class="restart-btn" id="restartBtn">もういちど あそぶ</button>
+    </section>
+  </div>
+
+  <div class="finish-confetti confetti-layer hidden" id="finishConfettiLayer" aria-hidden="true"></div>
+
+  <div class="overlay" id="feedbackOverlay" aria-live="assertive" aria-modal="true">
+    <div class="confetti-layer hidden" id="confettiLayer" aria-hidden="true"></div>
+    <div class="overlay-card" id="feedbackCard">
+      <div class="sparkles hidden" id="feedbackSparkles" aria-hidden="true">やったね！<br />すごーい！</div>
+      <h2 id="feedbackTitle"></h2>
+      <p class="wrong-buzzer hidden" id="wrongBuzzerLine" aria-hidden="true">ぶぶーーーー</p>
+      <p id="feedbackSub"></p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var TOTAL_STEPS = 10;
+      var ROUNDS_PER_GAME = 10;
+
+      var QUIZ_POOL = [
+        {
+          q: "げんかんでは くつを ぬいだら どう する？",
+          choices: ["そらす", "そろえる", "なげる", "かくす"],
+          correctIndex: 1
+        },
+        {
+          q: "ごはんを たべる まえの あいさつは？",
+          choices: ["ごちそうさま", "いただきます", "おはよう", "こんにちは"],
+          correctIndex: 1
+        },
+        {
+          q: "おともだちに おもちゃを かりる ときは なんて いう？",
+          choices: ["とる", "かして、といいます", "だまってとる", "にげる"],
+          correctIndex: 1
+        },
+        {
+          q: "てを あらうのは いつが いい？",
+          choices: ["たべる まえと あと", "ねる ときだけ", "あそぶ ときだけ", "あらわなくていい"],
+          correctIndex: 0
+        },
+        {
+          q: "ひろばで ごみを みつけたら？",
+          choices: ["みているだけ", "けっとばす", "ひろって ごみばこへ", "かくす"],
+          correctIndex: 2
+        },
+        {
+          q: "おはようは どんな ときに いう？",
+          choices: ["あさ おきた とき", "よる", "ひるま", "あそんでる ときだけ"],
+          correctIndex: 0
+        },
+        {
+          q: "ごちそうさまは どんな ときに いう？",
+          choices: ["たべおわった あと", "たべる まえ", "あさだけ", "ねる まえ"],
+          correctIndex: 0
+        },
+        {
+          q: "いってきますは どんな ときに いう？",
+          choices: ["でかける まえ", "いえに かえった とき", "ねる とき", "あそぶ ときだけ"],
+          correctIndex: 0
+        },
+        {
+          q: "ただいまは どんな ときに いう？",
+          choices: ["いえに かえった とき", "でかける とき", "あさだけ", "まだ でかける とき"],
+          correctIndex: 0
+        },
+        {
+          q: "はを みがくのは いつの とき？",
+          choices: ["あさと よる", "ひるだけ", "いちどだけ", "みがかなくていい"],
+          correctIndex: 0
+        },
+        {
+          q: "ベッドから おきたら はじめに なにを する？",
+          choices: ["ふとんを たたむ", "そのまま でる", "とびだす", "ねる"],
+          correctIndex: 0
+        },
+        {
+          q: "でんわの はじめは なんて いう？",
+          choices: ["もしもし", "さいなら", "バイバイ", "だまっている"],
+          correctIndex: 0
+        },
+        {
+          q: "でんわを おわりたい ときは なんて いう？",
+          choices: ["しつれいします", "にげる", "だまる", "おおごえで さよなら"],
+          correctIndex: 0
+        },
+        {
+          q: "バスで ざせきが わからない ときは どう する？",
+          choices: ["おとなに きく", "おおごえを だす", "たつだけ", "にげる"],
+          correctIndex: 0
+        },
+        {
+          q: "きょうしつでは どうする？",
+          choices: ["おおごえで はなさない", "おおごえで はなす", "はしる", "ねる"],
+          correctIndex: 0
+        },
+        {
+          q: "せんせいを よぶ ときは なんて いう？",
+          choices: ["せんせい", "ねえねえ", "おーい", "よばない"],
+          correctIndex: 0
+        },
+        {
+          q: "テレビは ちかくで みると めに わるい。どう みるのが いい？",
+          choices: [
+            "とおくに すわって みる",
+            "ちかくに すわって みる",
+            "テレビに ピッタリ ちかづく",
+            "よこになって ながめて みる"
+          ],
+          correctIndex: 0
+        },
+        {
+          q: "おもちゃを かえす ときは なんて いう？",
+          choices: ["ありがとう といいます", "だまって とおす", "にげる", "こわす"],
+          correctIndex: 0
+        },
+        {
+          q: "トイレが おわったら ては どう する？",
+          choices: ["あらう", "あらわない", "そのまま", "ぬぐだけ"],
+          correctIndex: 0
+        },
+        {
+          q: "くだものは たべる まえに なにを する？",
+          choices: ["あらう", "あらわない", "むいてすぐ", "そのままかじる"],
+          correctIndex: 0
+        },
+        {
+          q: "おなかが いたい ときは どう する？",
+          choices: ["おとなに いう", "だまる", "にげる", "わらう"],
+          correctIndex: 0
+        },
+        {
+          q: "はじめての ともだちには なんて いう？",
+          choices: ["はじめまして といいます", "やあ だけ", "みない", "にげる"],
+          correctIndex: 0
+        },
+        {
+          q: "しんごうが あかだったら どう する？",
+          choices: ["とまる", "とおる", "はしる", "みないで とおる"],
+          correctIndex: 0
+        },
+        {
+          q: "みちを わたる ときは どう する？",
+          choices: ["おとなと てをつなぐ", "ひとりで とびだす", "はしる", "みない"],
+          correctIndex: 0
+        },
+        {
+          q: "でんしゃまちでは どう する？",
+          choices: ["れつに ならんで まつ", "さきにおす", "おおごえ", "ねる"],
+          correctIndex: 0
+        },
+        {
+          q: "くしゃみ を しそうな ときは どう する？",
+          choices: ["ティッシュで かくす", "かくさず に はく", "おおごえだけ", "にげる"],
+          correctIndex: 0
+        },
+        {
+          q: "ひとの ものに さわる まえは なにを する？",
+          choices: ["いいですか ときく", "どんどん さわる", "とって あそぶ", "にげる"],
+          correctIndex: 0
+        },
+        {
+          q: "わるいことを したら なにを いう？",
+          choices: ["ごめんなさい といいます", "にげる", "かくす", "わらう"],
+          correctIndex: 0
+        },
+        {
+          q: "てつだいを してもらったら なんて いう？",
+          choices: ["ありがとう といいます", "だまる", "しなくていい", "みない"],
+          correctIndex: 0
+        },
+        {
+          q: "かさを もちこんだら げんかんでは どう する？",
+          choices: ["とじて おく", "ひらいたまま", "なげる", "もったまま あるく"],
+          correctIndex: 0
+        },
+        {
+          q: "げんかんに はいったら うわぎは どう する？",
+          choices: ["きちんと かける", "ゆかに なげる", "かくす", "ぬぐ"],
+          correctIndex: 0
+        },
+        {
+          q: "ろうかを あるく ときは どう する？",
+          choices: ["はしらない", "はしる", "おおごえで さわぐ", "ねる"],
+          correctIndex: 0
+        },
+        {
+          q: "ねつが ある とき しょうがっこうは どう する？",
+          choices: ["やすむ", "いく", "にげる", "だまる"],
+          correctIndex: 0
+        },
+        {
+          q: "へやを でる とき テレビは どう する？",
+          choices: ["けす", "つけっぱなし", "おおきなこえで みる", "みない"],
+          correctIndex: 0
+        },
+        {
+          q: "ねる まえに はを みがく？",
+          choices: ["する", "しないで ねる", "あさだけ", "みがかなくていい"],
+          correctIndex: 0
+        },
+        {
+          q: "じゃんけんで まけたら どう する？",
+          choices: ["おこらずに あきらめる", "なきだす", "いじわるを する", "にげる"],
+          correctIndex: 0
+        },
+        {
+          q: "あそびで まけた ともだちには なんて いう？",
+          choices: ["よくがんばったね といいます", "わらう", "まけたね といいます", "みない"],
+          correctIndex: 0
+        },
+        {
+          q: "いぬが いたら てを だしていいのは？",
+          choices: ["おとなが さわっても いい と いった とき", "すぐさわる", "おいかける", "おおごえ"],
+          correctIndex: 0
+        },
+        {
+          q: "コップで のむ とき くちと コップは？",
+          choices: ["くちが さわらないように", "ふかふか つよく しぼる", "なげる", "コップを ふりまわす"],
+          correctIndex: 0
+        },
+        {
+          q: "くちで ゆびを しゃぶっても いい？",
+          choices: ["よくない", "いい", "たくさん していい", "みなくていい"],
+          correctIndex: 0
+        },
+        {
+          q: "まちなかで ボールを なげても いい？",
+          choices: ["だめ", "なんでも いい", "だれも いない ときだけ", "おおごえで いい"],
+          correctIndex: 0
+        },
+        {
+          q: "げんかんの スリッパは どう する？",
+          choices: ["きちんと そろえる", "ちがえても いい", "なげる", "かくす"],
+          correctIndex: 0
+        },
+        {
+          q: "おふろから あがったあとは なにを する？",
+          choices: ["からだを ふく", "ぬぐまま あるく", "にげる", "みない"],
+          correctIndex: 0
+        },
+        {
+          q: "おきゃくさんが きたら どう する？",
+          choices: ["あいさつを する", "かくれる", "にげる", "だまる"],
+          correctIndex: 0
+        },
+        {
+          q: "かぞくで テレビを みる ときは どう する？",
+          choices: ["おおきなこえで はなさない", "おおごえで はなす", "さわぐ", "じゃまを する"],
+          correctIndex: 0
+        },
+        {
+          q: "プレゼントを もらったら なんて いう？",
+          choices: ["ありがとう といいます", "だまって うける", "にげる", "おとす"],
+          correctIndex: 0
+        },
+        {
+          q: "へやを でる とき でんきは どう する？",
+          choices: ["けす", "つけっぱなし", "にげる", "みない"],
+          correctIndex: 0
+        },
+        {
+          q: "スマホや ゲームの じかんは どう する？",
+          choices: ["おとなと きまりを まもる", "ずっと あそんでいい", "だれも きかない", "にげる"],
+          correctIndex: 0
+        },
+        {
+          q: "みずやりばの おみずは のんでも いい？",
+          choices: ["のまない", "のむ", "にげる", "おおごえ"],
+          correctIndex: 0
+        },
+        {
+          q: "おふろに はいる まえは？",
+          choices: ["からだを あらう", "みがかない", "さいごに あらう", "にげる"],
+          correctIndex: 0
+        }
+      ];
+
+      function pickRoundQuizzes() {
+        var ix = [];
+        for (var i = 0; i < QUIZ_POOL.length; i++) ix.push(i);
+        for (var j = ix.length - 1; j > 0; j--) {
+          var r = Math.floor(Math.random() * (j + 1));
+          var t = ix[j];
+          ix[j] = ix[r];
+          ix[r] = t;
+        }
+        var out = [];
+        for (var k = 0; k < ROUNDS_PER_GAME; k++) {
+          out.push(QUIZ_POOL[ix[k]]);
+        }
+        return out;
+      }
+
+      var state = {
+        roundQuiz: pickRoundQuizzes(),
+        questionIndex: 0,
+        stepsCompleted: 0,
+        locked: false,
+        audioCtx: null
+      };
+
+      var els = {
+        runner: document.getElementById("runner"),
+        stepDots: document.getElementById("stepDots"),
+        questionText: document.getElementById("questionText"),
+        progressText: document.getElementById("progressText"),
+        choices: document.getElementById("choices"),
+        quizPanel: document.getElementById("quizPanel"),
+        finishPanel: document.getElementById("finishPanel"),
+        restartBtn: document.getElementById("restartBtn"),
+        overlay: document.getElementById("feedbackOverlay"),
+        feedbackCard: document.getElementById("feedbackCard"),
+        feedbackTitle: document.getElementById("feedbackTitle"),
+        feedbackSub: document.getElementById("feedbackSub"),
+        feedbackSparkles: document.getElementById("feedbackSparkles"),
+        confettiLayer: document.getElementById("confettiLayer"),
+        finishConfettiLayer: document.getElementById("finishConfettiLayer"),
+        wrongBuzzerLine: document.getElementById("wrongBuzzerLine")
+      };
+
+      function getAudioContext() {
+        if (!state.audioCtx) {
+          var Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) state.audioCtx = new Ctx();
+        }
+        return state.audioCtx;
+      }
+
+      function playPinpon() {
+        var ctx = getAudioContext();
+        if (!ctx) return;
+        if (ctx.state === "suspended") ctx.resume();
+
+        var now = ctx.currentTime;
+        function beep(freq, t0, dur) {
+          var osc = ctx.createOscillator();
+          var g = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, t0);
+          g.gain.setValueAtTime(0.0001, t0);
+          g.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+          osc.connect(g);
+          g.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + dur + 0.05);
+        }
+
+        beep(784, now, 0.1);
+        beep(1046.5, now + 0.11, 0.12);
+        beep(1318.51, now + 0.24, 0.22);
+      }
+
+      function burstConfetti(layer, count) {
+        var target = layer || els.confettiLayer;
+        if (!target) return;
+        target.innerHTML = "";
+        var n = typeof count === "number" ? count : 24;
+        for (var i = 0; i < n; i++) {
+          var s = document.createElement("span");
+          s.className = "confetti-piece";
+          s.style.setProperty("--cx", (6 + Math.random() * 88) + "%");
+          s.style.setProperty("--ch", String(Math.floor(Math.random() * 360)));
+          s.style.setProperty("--cs", (7 + Math.random() * 11) + "px");
+          s.style.setProperty("--cdelay", (Math.random() * 0.4).toFixed(2) + "s");
+          s.style.setProperty("--cdur", (1.05 + Math.random() * 0.65).toFixed(2) + "s");
+          s.style.setProperty("--rot", (420 + Math.floor(Math.random() * 600)) + "deg");
+          s.style.setProperty("--dx", (Math.random() * 100 - 50).toFixed(1) + "px");
+          target.appendChild(s);
+        }
+        target.classList.remove("hidden");
+      }
+
+      function playBubuu() {
+        var ctx = getAudioContext();
+        if (!ctx) return;
+        if (ctx.state === "suspended") ctx.resume();
+        var t = ctx.currentTime;
+
+        var o1 = ctx.createOscillator();
+        var g1 = ctx.createGain();
+        o1.type = "sawtooth";
+        o1.frequency.setValueAtTime(218, t);
+        o1.frequency.exponentialRampToValueAtTime(155, t + 0.35);
+        o1.frequency.exponentialRampToValueAtTime(98, t + 1.05);
+        g1.gain.setValueAtTime(0.0001, t);
+        g1.gain.exponentialRampToValueAtTime(0.11, t + 0.05);
+        g1.gain.setValueAtTime(0.095, t + 0.2);
+        g1.gain.setValueAtTime(0.085, t + 0.95);
+        g1.gain.exponentialRampToValueAtTime(0.0001, t + 1.38);
+        o1.connect(g1);
+        g1.connect(ctx.destination);
+        o1.start(t);
+        o1.stop(t + 1.42);
+
+        var o2 = ctx.createOscillator();
+        var g2 = ctx.createGain();
+        o2.type = "square";
+        o2.frequency.setValueAtTime(109, t);
+        o2.frequency.exponentialRampToValueAtTime(72, t + 1.05);
+        g2.gain.setValueAtTime(0.0001, t);
+        g2.gain.exponentialRampToValueAtTime(0.048, t + 0.06);
+        g2.gain.setValueAtTime(0.04, t + 0.25);
+        g2.gain.exponentialRampToValueAtTime(0.0001, t + 1.32);
+        o2.connect(g2);
+        g2.connect(ctx.destination);
+        o2.start(t);
+        o2.stop(t + 1.36);
+      }
+
+      function buildStepDots() {
+        els.stepDots.innerHTML = "";
+        for (var i = 0; i < TOTAL_STEPS; i++) {
+          var d = document.createElement("span");
+          d.className = "step-dot";
+          d.setAttribute("aria-hidden", "true");
+          els.stepDots.appendChild(d);
+        }
+      }
+
+      function updateStepDots() {
+        var nodes = els.stepDots.querySelectorAll(".step-dot");
+        for (var i = 0; i < nodes.length; i++) {
+          nodes[i].classList.toggle("done", i < state.stepsCompleted);
+        }
+      }
+
+      function runnerPositionPercent() {
+        if (state.stepsCompleted <= 0) return 4;
+        if (state.stepsCompleted >= TOTAL_STEPS) return 96;
+        return 4 + (state.stepsCompleted / TOTAL_STEPS) * 88;
+      }
+
+      function setRunnerPosition(animate) {
+        var pct = runnerPositionPercent();
+        els.runner.style.transition = animate ? "" : "none";
+        els.runner.style.left = pct + "%";
+        if (!animate) {
+          void els.runner.offsetWidth;
+          els.runner.style.transition = "";
+        }
+      }
+
+      function showFeedback(ok, title, sub, onDone) {
+        els.feedbackTitle.textContent = title;
+        els.feedbackSub.textContent = sub || "";
+        els.feedbackSparkles.classList.toggle("hidden", !ok);
+        if (els.wrongBuzzerLine) {
+          els.wrongBuzzerLine.classList.toggle("hidden", ok);
+          els.wrongBuzzerLine.setAttribute("aria-hidden", ok ? "true" : "false");
+        }
+        els.overlay.classList.toggle("feedback-correct", ok);
+        els.overlay.classList.toggle("feedback-wrong", !ok);
+        els.feedbackCard.classList.toggle("correct-burst", ok);
+        els.feedbackCard.classList.toggle("wrong-burst", !ok);
+        if (ok) burstConfetti(null);
+        else if (els.confettiLayer) {
+          els.confettiLayer.classList.add("hidden");
+          els.confettiLayer.innerHTML = "";
+        }
+        els.overlay.classList.add("show");
+        var ms = ok ? 1950 : 1650;
+        window.setTimeout(function () {
+          els.overlay.classList.remove("show");
+          els.overlay.classList.remove("feedback-correct");
+          els.overlay.classList.remove("feedback-wrong");
+          els.feedbackCard.classList.remove("correct-burst");
+          els.feedbackCard.classList.remove("wrong-burst");
+          if (els.wrongBuzzerLine) els.wrongBuzzerLine.classList.add("hidden");
+          if (els.confettiLayer) {
+            els.confettiLayer.classList.add("hidden");
+            els.confettiLayer.innerHTML = "";
+          }
+          if (onDone) onDone();
+        }, ms);
+      }
+
+      function renderQuestion() {
+        var q = state.roundQuiz[state.questionIndex];
+        els.questionText.textContent = q.q;
+        els.progressText.textContent =
+          "もんだい " + (state.questionIndex + 1) + " / " + state.roundQuiz.length;
+        els.choices.innerHTML = "";
+        state.locked = false;
+
+        for (var i = 0; i < q.choices.length; i++) {
+          (function (idx) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "choice-btn";
+            btn.textContent = q.choices[idx];
+            btn.setAttribute("aria-label", q.choices[idx]);
+            btn.addEventListener("click", function () {
+              onChoice(idx, btn);
+            });
+            els.choices.appendChild(btn);
+          })(i);
+        }
+      }
+
+      function setAllChoicesDisabled(disabled) {
+        var btns = els.choices.querySelectorAll(".choice-btn");
+        for (var i = 0; i < btns.length; i++) btns[i].disabled = disabled;
+      }
+
+      function onChoice(index, btn) {
+        if (state.locked) return;
+        var q = state.roundQuiz[state.questionIndex];
+        var ok = index === q.correctIndex;
+        state.locked = true;
+        setAllChoicesDisabled(true);
+
+        if (ok) {
+          playPinpon();
+          showFeedback(true, "せいかい！", "ピンポン！", function () {
+            state.stepsCompleted++;
+            updateStepDots();
+            els.runner.classList.add("bounce");
+            window.setTimeout(function () {
+              els.runner.classList.remove("bounce");
+            }, 450);
+            setRunnerPosition(true);
+
+            state.questionIndex++;
+            if (state.questionIndex >= state.roundQuiz.length) {
+              window.setTimeout(showFinish, 400);
+            } else {
+              setAllChoicesDisabled(false);
+              state.locked = false;
+              renderQuestion();
+            }
+          });
+        } else {
+          playBubuu();
+          btn.classList.add("wrong-shake");
+          window.setTimeout(function () {
+            btn.classList.remove("wrong-shake");
+          }, 680);
+          showFeedback(false, "ざんねん！", "もういちど えらんでね", function () {
+            setAllChoicesDisabled(false);
+            state.locked = false;
+          });
+        }
+      }
+
+      function showFinish() {
+        els.quizPanel.classList.add("hidden");
+        els.finishPanel.classList.remove("hidden");
+        els.finishPanel.classList.add("finish-celebrate");
+        els.runner.textContent = "🎉";
+        setRunnerPosition(true);
+        if (els.finishConfettiLayer) {
+          els.finishConfettiLayer.classList.remove("hidden");
+          burstConfetti(els.finishConfettiLayer, 42);
+        }
+        playPinpon();
+        window.setTimeout(function () {
+          playPinpon();
+        }, 340);
+      }
+
+      function restart() {
+        state.roundQuiz = pickRoundQuizzes();
+        state.questionIndex = 0;
+        state.stepsCompleted = 0;
+        state.locked = false;
+        els.runner.textContent = "🏃";
+        els.finishPanel.classList.remove("finish-celebrate");
+        els.finishPanel.classList.add("hidden");
+        els.quizPanel.classList.remove("hidden");
+        if (els.finishConfettiLayer) {
+          els.finishConfettiLayer.classList.add("hidden");
+          els.finishConfettiLayer.innerHTML = "";
+        }
+        buildStepDots();
+        updateStepDots();
+        setRunnerPosition(false);
+        renderQuestion();
+      }
+
+      els.restartBtn.addEventListener("click", restart);
+
+      buildStepDots();
+      updateStepDots();
+      setRunnerPosition(false);
+      renderQuestion();
+    })();
+  </script>
+</body>
+</html>
