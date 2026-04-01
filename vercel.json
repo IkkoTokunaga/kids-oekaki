@@ -2,6 +2,14 @@
   "cleanUrls": false,
   "rewrites": [
     {
+      "source": "/quiz-common.css",
+      "destination": "/games/quiz-common.css"
+    },
+    {
+      "source": "/quiz-effects.js",
+      "destination": "/games/quiz-effects.js"
+    },
+    {
       "source": "/",
       "destination": "/games/index.html"
     },
