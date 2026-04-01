@@ -534,18 +534,17 @@
       }
 
       function bindChoiceAction(btn, onPick) {
-        var handledByPointer = false;
-        btn.addEventListener("pointerup", function (ev) {
-          if (ev.pointerType === "mouse" && ev.button !== 0) return;
-          handledByPointer = true;
+        var handledByTouch = false;
+        btn.addEventListener("touchend", function (ev) {
+          handledByTouch = true;
           ev.preventDefault();
           onPick();
           window.setTimeout(function () {
-            handledByPointer = false;
-          }, 0);
-        });
+            handledByTouch = false;
+          }, 400);
+        }, { passive: false });
         btn.addEventListener("click", function () {
-          if (handledByPointer) return;
+          if (handledByTouch) return;
           onPick();
         });
       }
