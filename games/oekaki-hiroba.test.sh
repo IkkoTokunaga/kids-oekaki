@@ -16,7 +16,8 @@ check "おえかき ひろば"
 check 'href="/"'
 check "drawCanvas"
 check "ぜんぶ けす"
-check "スタンプ（220しゅるい / いちらん）"
+check 'popup-title">スタンプ</p>'
+check "summary>スタンプ いちらん</summary>"
 check "🐛"
 check "💐"
 check "🪷"
@@ -75,5 +76,17 @@ check "bgCanvas"
 check "var ctx = bgCtx;"
 check "ResizeObserver"
 check "resizeSnapshotDraw"
+
+python3 - <<PY
+import ast
+import re
+from pathlib import Path
+text = (Path("$ROOT") / "games" / "oekaki-hiroba.html").read_text(encoding="utf-8")
+m = re.search(r"var STAMPS = \[([\s\S]*?)\];", text)
+assert m, "STAMPS array not found"
+items = ast.literal_eval("[" + m.group(1).strip() + "]")
+assert len(items) == 500, f"expected 500 stamps, got {len(items)}"
+assert len(set(items)) == 500, "duplicate stamp strings"
+PY
 
 echo "OK: oekaki-hiroba.html checks passed"
