@@ -95,7 +95,15 @@ for t in tabs:
         assert c not in seen, f"duplicate char in json: {c!r}"
         seen.add(c)
         total += 1
-assert total >= 4000, f"expected full emoji set (~5k), got {total}"
+assert total >= 3500, f"expected large emoji set (~3.7k+), got {total}"
+
+#  variation selector 除きの重複がないこと
+norm_seen = set()
+for t in tabs:
+    for c in t.get("stamps") or []:
+        n = c.replace("\ufe0f", "")
+        assert n not in norm_seen, f"norm duplicate: {n!r}"
+        norm_seen.add(n)
 PY
 
 echo "OK: oekaki-hiroba.html checks passed"
