@@ -32,6 +32,6 @@ services:
   web:
     image: nginx:alpine
     volumes:
-      - ./games:/usr/share/nginx/html:ro
+      - ./:/usr/share/nginx/html:ro
     ports:
       - "8080:80"
