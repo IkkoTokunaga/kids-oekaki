@@ -89,30 +89,6 @@
       text-align: center;
     }
 
-    .top-back {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      left: 0.55rem;
-      top: 0.22rem;
-      margin: 0;
-      padding: 0.28rem 0.72rem;
-      font-size: clamp(0.75rem, 2.9vw, 0.9rem);
-      font-weight: 800;
-      color: #fff;
-      text-decoration: none;
-      text-shadow: 0 1px 2px var(--shadow);
-      border-radius: 0.55rem;
-      background: rgba(230, 81,0, 0.55);
-      border: 2px solid rgba(255, 255, 255, 0.65);
-    }
-
-    .top-back:active {
-      opacity: 0.9;
-      transform: scale(0.98);
-    }
-
     h1 {
       margin: 0 auto;
       min-height: 2rem;
@@ -556,7 +532,6 @@
 </head>
 <body>
   <header class="header">
-    <a class="top-back" href="/">TOPへ もどる</a>
     <h1>おえかき ひろば</h1>
     <p class="hint">ゆびや マウスで なぞってね</p>
   </header>
@@ -814,11 +789,7 @@
       }
 
       function stampsJsonUrl() {
-        var p = window.location.pathname || "";
-        if (p.indexOf("/games/") !== -1) {
-          return p.replace(/[^/]*$/, "") + "oekaki-stamps.json";
-        }
-        return "/games/oekaki-stamps.json";
+        return "/oekaki-stamps.json";
       }
 
       function applyStrokeStyle() {

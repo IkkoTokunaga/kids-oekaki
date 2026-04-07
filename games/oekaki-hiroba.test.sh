@@ -2,10 +2,14 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FILE="$ROOT/games/oekaki-hiroba.html"
-JSON="$ROOT/games/oekaki-stamps.json"
+JSON="$ROOT/oekaki-stamps.json"
+NEXT_PAGE="$ROOT/app/oekaki/page.tsx"
+NEXT_ROUTE="$ROOT/app/oekaki-stamps.json/route.ts"
 
 test -f "$FILE" || { echo "FAIL: missing $FILE"; exit 1; }
 test -f "$JSON" || { echo "FAIL: missing $JSON"; exit 1; }
+test -f "$NEXT_PAGE" || { echo "FAIL: missing $NEXT_PAGE"; exit 1; }
+test -f "$NEXT_ROUTE" || { echo "FAIL: missing $NEXT_ROUTE"; exit 1; }
 
 check() {
   if ! grep -qF "$1" "$FILE"; then
@@ -15,7 +19,6 @@ check() {
 }
 
 check "おえかき ひろば"
-check 'href="/"'
 check "drawCanvas"
 check "ぜんぶ けす"
 check 'popup-title">スタンプ</p>'
@@ -78,6 +81,9 @@ check "bgCanvas"
 check "var ctx = bgCtx;"
 check "ResizeObserver"
 check "resizeSnapshotDraw"
+grep -q 'srcDoc' "$NEXT_PAGE" || { echo "FAIL: Next page should embed legacy HTML via srcDoc"; exit 1; }
+grep -q 'allow-scripts allow-same-origin' "$NEXT_PAGE" || { echo "FAIL: iframe sandbox settings missing"; exit 1; }
+grep -q 'application/json' "$NEXT_ROUTE" || { echo "FAIL: Next route should return JSON content-type"; exit 1; }
 
 python3 - <<PY
 import json
