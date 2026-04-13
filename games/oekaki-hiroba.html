@@ -1321,7 +1321,15 @@
       function endDraw(ev) {
         if (ev && ev.type === "touchend") ev.preventDefault();
         if (drawing && tapMaybe && brushKind !== "spray") {
-          floodFillAt(last);
+          if (fillBucketCursor) {
+            floodFillAt(last);
+          } else {
+            ctx.beginPath();
+            applyStrokeStyle();
+            ctx.moveTo(last.x, last.y);
+            ctx.lineTo(last.x + 0.05, last.y + 0.05);
+            ctx.stroke();
+          }
         } else if (drawing && tapMaybe) {
           ctx.beginPath();
           applyStrokeStyle();
@@ -2119,6 +2127,15 @@
         refreshCanvasCursor();
       }
 
+      function switchTouchToPenForNuru() {
+        if (brushKind !== "spray") return;
+        brushKind = "pen";
+        lineW = 10;
+        document.querySelectorAll(".size-btn").forEach(function (s) {
+          s.classList.toggle("on", s.getAttribute("data-kind") === "pen");
+        });
+      }
+
       function cloneFillSwatches() {
         var mount = document.getElementById("fillSwatchMount");
         var src = document.querySelector("#popupColors .popup-body");
@@ -2149,6 +2166,7 @@
               fillColor = c;
             }
             fillBucketCursor = true;
+            switchTouchToPenForNuru();
             updateMenuLabels();
             closeAllPopups();
           });
@@ -2284,6 +2302,9 @@
       canvas.addEventListener("mousemove", moveDraw);
       canvas.addEventListener("mouseup", endDraw);
       canvas.addEventListener("mouseleave", endDraw);
+      canvas.addEventListener("dblclick", function (ev) {
+        ev.preventDefault();
+      });
 
       canvas.addEventListener("touchstart", startDraw, { passive: false });
       canvas.addEventListener("touchmove", moveDraw, { passive: false });
