@@ -317,6 +317,21 @@
       opacity: 0.88;
     }
 
+    .touch-sample.line-thin {
+      height: 0.16rem;
+      width: 1.1rem;
+    }
+
+    .touch-sample.line-normal {
+      height: 0.32rem;
+      width: 1.1rem;
+    }
+
+    .touch-sample.line-thick {
+      height: 0.52rem;
+      width: 1.1rem;
+    }
+
     .touch-sample.pen {
       height: 0.3rem;
     }
@@ -545,6 +560,7 @@
     <button type="button" class="menu-btn" data-popup-open="popupColors" id="btnColors">🎨 せん: くろ</button>
     <button type="button" class="menu-btn" data-popup-open="popupFillColors" id="btnFill">🪣 ぬる: くろ</button>
     <button type="button" class="menu-btn" data-popup-open="popupSizes" id="btnSizes">🖌️ タッチ: ペン</button>
+    <button type="button" class="menu-btn" data-popup-open="popupLineThickness" id="btnLineThickness">📏 せん: ふつう</button>
     <button type="button" class="action-btn action-clear" id="btnClear">ぜんぶ けす</button>
     <button type="button" class="action-btn action-chaos" id="btnYaminabe">やみなべ</button>
     <button type="button" class="menu-btn" data-popup-open="popupTemplates" id="btnTemplates">🖼️ テンプレート: なし</button>
@@ -654,6 +670,17 @@
     </div>
   </div>
 
+  <div id="popupLineThickness" class="popup" role="dialog" aria-label="せんの太さ">
+    <div class="popup-card">
+      <div class="popup-head"><p class="popup-title">せんの太さ</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
+      <div class="popup-body">
+        <button type="button" class="size-btn thickness-btn" data-thickness="thin"><span class="touch-sample line-thin" aria-hidden="true"></span><span class="size-label">ほそい</span></button>
+        <button type="button" class="size-btn thickness-btn on" data-thickness="normal"><span class="touch-sample line-normal" aria-hidden="true"></span><span class="size-label">ふつう</span></button>
+        <button type="button" class="size-btn thickness-btn" data-thickness="thick"><span class="touch-sample line-thick" aria-hidden="true"></span><span class="size-label">ふとい</span></button>
+      </div>
+    </div>
+  </div>
+
   <div id="popupTemplates" class="popup" role="dialog" aria-label="テンプレート">
     <div class="popup-card">
       <div class="popup-head"><p class="popup-title">テンプレート</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
@@ -707,6 +734,7 @@
 
       var color = "#212121";
       var lineW = 10;
+      var lineThicknessKey = "normal";
       var brushKind = "pen";
       var drawing = false;
       var last = null;
@@ -843,6 +871,19 @@
         neon: "ネオン",
         chalk: "チョーク"
       };
+      var thicknessNames = {
+        thin: "ほそい",
+        normal: "ふつう",
+        thick: "ふとい"
+      };
+      function lineThicknessMul() {
+        if (lineThicknessKey === "thin") return 0.58;
+        if (lineThicknessKey === "thick") return 1.55;
+        return 1;
+      }
+      function effectiveLineW() {
+        return lineW * lineThicknessMul();
+      }
       var templateNames = {
         road: "どうろ",
         cake: "ケーキやさん",
@@ -936,37 +977,38 @@
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
         ctx.shadowColor = "transparent";
+        var ew = effectiveLineW();
         if (eraser) {
           ctx.globalCompositeOperation = "destination-out";
           ctx.strokeStyle = "rgba(0,0,0,1)";
-          ctx.lineWidth = lineW * 1.85;
+          ctx.lineWidth = ew * 1.85;
           ctx.globalAlpha = 1;
         } else {
           ctx.globalCompositeOperation = "source-over";
           ctx.strokeStyle = rainbowInk ? "hsl(" + Math.floor(Date.now() / 18 % 360) + " 100% 50%)" : color;
-          ctx.lineWidth = lineW;
+          ctx.lineWidth = ew;
           ctx.globalAlpha = 1;
           if (brushKind === "pencil") {
-            ctx.lineWidth = Math.max(2, lineW * 0.68);
+            ctx.lineWidth = Math.max(2, ew * 0.68);
             ctx.globalAlpha = 0.9;
           } else if (brushKind === "brush") {
-            ctx.lineWidth = lineW * 1.35;
+            ctx.lineWidth = ew * 1.35;
             ctx.globalAlpha = 0.72;
           } else if (brushKind === "crayon") {
-            ctx.lineWidth = lineW * 1.55;
+            ctx.lineWidth = ew * 1.55;
             ctx.globalAlpha = 0.58;
           } else if (brushKind === "marker") {
-            ctx.lineWidth = lineW * 1.25;
+            ctx.lineWidth = ew * 1.25;
             ctx.globalAlpha = 0.5;
             ctx.lineCap = "butt";
             ctx.lineJoin = "round";
           } else if (brushKind === "neon") {
-            ctx.lineWidth = lineW * 0.95;
+            ctx.lineWidth = ew * 0.95;
             ctx.globalAlpha = 0.95;
             ctx.shadowColor = rainbowInk ? ctx.strokeStyle : color;
-            ctx.shadowBlur = Math.max(3, lineW * 0.9);
+            ctx.shadowBlur = Math.max(3, ew * 0.9);
           } else if (brushKind === "chalk") {
-            ctx.lineWidth = lineW * 1.45;
+            ctx.lineWidth = ew * 1.45;
             ctx.globalAlpha = 0.68;
           }
         }
@@ -977,8 +1019,9 @@
       }
 
       function sprayAt(point) {
-        var radius = lineW * 1.15;
-        var count = Math.floor(lineW * 2.8);
+        var ew = effectiveLineW();
+        var radius = ew * 1.15;
+        var count = Math.floor(ew * 2.8);
         ctx.save();
         ctx.shadowBlur = 0;
         ctx.shadowOffsetX = 0;
@@ -1264,7 +1307,7 @@
         }
         if (brushKind === "brush") {
           var speed = Math.min(1, dist / 18);
-          var width = lineW * (1.9 - speed * 0.9);
+          var width = effectiveLineW() * (1.9 - speed * 0.9);
           ctx.save();
           ctx.shadowBlur = 0;
           ctx.shadowOffsetX = 0;
@@ -1299,7 +1342,7 @@
           return;
         }
         if (brushKind === "chalk") {
-          var jitter = Math.max(1.2, lineW * 0.08);
+          var jitter = Math.max(1.2, effectiveLineW() * 0.08);
           for (var c = 0; c < 3; c += 1) {
             ctx.beginPath();
             applyStrokeStyle();
@@ -2095,9 +2138,11 @@
         var btnColors = document.getElementById("btnColors");
         var btnFill = document.getElementById("btnFill");
         var btnSizes = document.getElementById("btnSizes");
+        var btnLineThickness = document.getElementById("btnLineThickness");
         var btnTemplates = document.getElementById("btnTemplates");
         var btnStamps = document.getElementById("btnStamps");
         var sizeLabel = brushNames[brushKind] || "ペン";
+        var thickLabel = thicknessNames[lineThicknessKey] || thicknessNames.normal;
         var templateLabel = activeTemplate ? (templateNames[activeTemplate] || activeTemplate) : "なし";
         var stampLabel = activeStamp || "なし";
         if (btnColors) {
@@ -2122,6 +2167,10 @@
           btnFill.setAttribute("aria-label", "ぬるいろ");
         }
         if (btnSizes) btnSizes.textContent = "🖌️ タッチ: " + sizeLabel;
+        if (btnLineThickness) {
+          btnLineThickness.textContent = "📏 せん: " + thickLabel;
+          btnLineThickness.setAttribute("aria-label", "せんの太さ");
+        }
         if (btnTemplates) btnTemplates.textContent = "🖼️ テンプレート: " + templateLabel;
         if (btnStamps) btnStamps.textContent = "✨ スタンプ: " + stampLabel;
         refreshCanvasCursor();
@@ -2131,7 +2180,7 @@
         if (brushKind !== "spray") return;
         brushKind = "pen";
         lineW = 10;
-        document.querySelectorAll(".size-btn").forEach(function (s) {
+        document.querySelectorAll(".size-btn:not(.thickness-btn)").forEach(function (s) {
           s.classList.toggle("on", s.getAttribute("data-kind") === "pen");
         });
       }
@@ -2229,7 +2278,8 @@
 
       document.querySelectorAll(".size-btn").forEach(function (b) {
         b.addEventListener("click", function () {
-          document.querySelectorAll(".size-btn").forEach(function (s) {
+          if (b.classList.contains("thickness-btn")) return;
+          document.querySelectorAll(".size-btn:not(.thickness-btn)").forEach(function (s) {
             s.classList.remove("on");
           });
           b.classList.add("on");
@@ -2239,6 +2289,18 @@
           syncStampBtnHighlight();
           eraser = false;
           fillBucketCursor = false;
+          updateMenuLabels();
+          closeAllPopups();
+        });
+      });
+
+      document.querySelectorAll(".thickness-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          document.querySelectorAll(".thickness-btn").forEach(function (s) {
+            s.classList.remove("on");
+          });
+          b.classList.add("on");
+          lineThicknessKey = b.getAttribute("data-thickness") || "normal";
           updateMenuLabels();
           closeAllPopups();
         });
