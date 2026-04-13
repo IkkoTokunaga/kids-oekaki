@@ -945,6 +945,10 @@
       }
 
       function applyStrokeStyle() {
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowColor = "transparent";
         if (eraser) {
           ctx.globalCompositeOperation = "destination-out";
           ctx.strokeStyle = "rgba(0,0,0,1)";
@@ -989,6 +993,10 @@
         var radius = lineW * 1.15;
         var count = Math.floor(lineW * 2.8);
         ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowColor = "transparent";
         ctx.globalCompositeOperation = eraser ? "destination-out" : "source-over";
         ctx.fillStyle = eraser ? "rgba(0,0,0,1)" : (rainbowInk ? "hsl(" + Math.floor(Date.now() / 18 % 360) + " 100% 50%)" : color);
         ctx.globalAlpha = eraser ? 1 : 0.56;
@@ -1271,6 +1279,10 @@
           var speed = Math.min(1, dist / 18);
           var width = lineW * (1.9 - speed * 0.9);
           ctx.save();
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+          ctx.shadowColor = "transparent";
           ctx.globalCompositeOperation = "source-over";
           ctx.strokeStyle = rainbowInk ? "hsl(" + Math.floor(Date.now() / 18 % 360) + " 100% 50%)" : color;
           ctx.globalAlpha = 0.2;
@@ -1334,6 +1346,10 @@
         drawing = false;
         last = null;
         ctx.globalCompositeOperation = "source-over";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowColor = "transparent";
       }
 
       function placeStamp(point) {
