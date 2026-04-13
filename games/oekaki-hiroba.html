@@ -722,15 +722,70 @@
       var lastFrameW = 0;
       var lastFrameH = 0;
 
+      var SVG_CURSOR_PENCIL =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<path fill="#000" opacity="0.18" d="M9 33L26 14l3 3L13 35z"/>' +
+        '<path fill="#ffcc80" stroke="#e65100" stroke-width="1.1" stroke-linejoin="round" d="M7 34L24 15l3.2 3.1L11 35z"/>' +
+        '<path fill="#ffe0b2" d="M24 15l1.2-1.2 3.2 3.1L27.2 18.1z"/>' +
+        '<path fill="#5d4037" stroke="#3e2723" stroke-width="0.9" d="M7 34L10 31l3.5 3.2L11 35z"/>' +
+        '<path fill="#212121" d="M6.5 34.5L8.2 32.8l2.2 2.1L7 35z"/>' +
+        "</svg>";
       var SVG_CURSOR_PEN =
-        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
-        '<path fill="#000" opacity="0.2" d="M8 30L22 15l2.8 2.9L12 31z"/>' +
-        '<path fill="#cfd8dc" stroke="#37474f" stroke-width="1" stroke-linejoin="round" d="M6 31L19 16l3.5 3.2L10 31z"/>' +
-        '<path fill="#eceff1" d="M19 16L19.8 15.2 23.2 18.5 22.5 19.2z"/>' +
-        '<circle cx="8" cy="29" r="2.4" fill="#111" stroke="#fff" stroke-width="0.75"/>' +
-        '<path fill="#e53935" stroke="#fff" stroke-width="1" stroke-linejoin="round" d="M19 16L30 5l3 3L22.5 19.2z"/>' +
-        '<path fill="#ffcdd2" opacity="0.9" d="M22 12l7-7 1.2 1.2-7 7z"/>' +
-        '<path fill="#b71c1c" stroke="#fff" stroke-width="0.7" stroke-linejoin="round" d="M30 5l2-2 2.2 2.2L33 8z"/>' +
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<path fill="#000" opacity="0.2" d="M10 33L26 15l3.5 3.6L14 35z"/>' +
+        '<path fill="#cfd8dc" stroke="#37474f" stroke-width="1.2" stroke-linejoin="round" d="M8 35L23 17l4 3.6L12 35z"/>' +
+        '<path fill="#eceff1" d="M23 17l1.3-1.2 4.1 3.7L26.1 20.5z"/>' +
+        '<circle cx="10" cy="33" r="3" fill="#111" stroke="#fff" stroke-width="0.9"/>' +
+        '<path fill="#e53935" stroke="#fff" stroke-width="1.1" stroke-linejoin="round" d="M23 17L35 4l3.5 3.5L26.1 20.5z"/>' +
+        '<path fill="#ffcdd2" opacity="0.95" d="M27 12l7-7 1.5 1.4-7 7z"/>' +
+        '<path fill="#b71c1c" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" d="M33.5 5.5l1.4-1.4 1.6 1.6L35 7.2z"/>' +
+        "</svg>";
+      var SVG_CURSOR_BRUSH =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<path fill="#000" opacity="0.15" d="M12 30c4-6 10-14 18-22l3 3c-7 7-13 15-17 21z"/>' +
+        '<path fill="#8d6e63" stroke="#4e342e" stroke-width="1" stroke-linejoin="round" d="M14 32L30 12l3.5 3.2L18 34z"/>' +
+        '<path fill="#bdbdbd" stroke="#616161" stroke-width="0.9" d="M10 28l4 4 2.5-2.5-4-3.8z"/>' +
+        '<path fill="#a1887f" stroke="#5d4037" stroke-width="0.8" d="M6 32c2-3 5-6 8-9l4 3.5c-3 3-6 6-9 8.5z"/>' +
+        '<path fill="#d7ccc8" d="M7 31.5c2.2-2.8 4.8-5.5 7.5-8l1.8 1.6c-2.6 2.5-5 5.2-7 7.8z"/>' +
+        "</svg>";
+      var SVG_CURSOR_CRAYON =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<path fill="#000" opacity="0.18" d="M11 34L28 12l4 3.5L16 36z"/>' +
+        '<path fill="#e91e63" stroke="#880e4f" stroke-width="1.1" stroke-linejoin="round" d="M9 35L26 13l4.2 3.6L14 36z"/>' +
+        '<path fill="#f48fb1" d="M26 13l1.5-1.2 4.2 3.6L29.2 15.4z"/>' +
+        '<path fill="#ffeb3b" stroke="#f9a825" stroke-width="0.8" d="M12 30l-2 4 4-1.5z"/>' +
+        '<path fill="#ad1457" d="M9 35l2.5-2.5 2.8 2.5L11 36z"/>' +
+        "</svg>";
+      var SVG_CURSOR_SPRAY =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<circle cx="10" cy="14" r="2.2" fill="#90caf9" stroke="#1565c0" stroke-width="0.6"/>' +
+        '<circle cx="6" cy="11" r="1.6" fill="#64b5f6"/>' +
+        '<circle cx="13" cy="10" r="1.4" fill="#bbdefb"/>' +
+        '<rect x="16" y="10" width="14" height="18" rx="2" fill="#eceff1" stroke="#455a64" stroke-width="1.2"/>' +
+        '<rect x="19" y="6" width="8" height="6" rx="1" fill="#78909c" stroke="#37474f" stroke-width="0.8"/>' +
+        '<ellipse cx="23" cy="7" rx="3" ry="1.8" fill="#546e7a"/>' +
+        '<rect x="20" y="22" width="6" height="5" rx="1" fill="#b0bec5"/>' +
+        "</svg>";
+      var SVG_CURSOR_MARKER =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<path fill="#000" opacity="0.16" d="M8 34L26 12l4 3.8L13 36z"/>' +
+        '<path fill="#ffee58" stroke="#f9a825" stroke-width="1.1" stroke-linejoin="round" d="M6 35L24 13l4.2 3.8L11 36z"/>' +
+        '<path fill="#212121" stroke="#000" stroke-width="0.6" d="M6 35l5-1.5 1.5 5-5.5 1z"/>' +
+        '<path fill="#fff59d" opacity="0.9" d="M24 13l1.4-1.2 4.2 3.8L27.2 15.6z"/>' +
+        "</svg>";
+      var SVG_CURSOR_NEON =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<path fill="#00e5ff" opacity="0.35" stroke="#00b8d4" stroke-width="2" stroke-linecap="round" d="M10 30L26 10"/>' +
+        '<path fill="none" stroke="#80ffff" stroke-width="3.5" stroke-linecap="round" d="M11 29L25 11"/>' +
+        '<path fill="none" stroke="#00bcd4" stroke-width="2" stroke-linecap="round" d="M12 28L24 12"/>' +
+        '<circle cx="9" cy="31" r="2.5" fill="#00e5ff" stroke="#fff" stroke-width="0.8"/>' +
+        "</svg>";
+      var SVG_CURSOR_CHALK =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">' +
+        '<path fill="#000" opacity="0.12" d="M10 33L28 11l3.5 3.4L14 35z"/>' +
+        '<path fill="#eceff1" stroke="#90a4ae" stroke-width="1.1" stroke-linejoin="round" d="M8 34L26 12l3.8 3.5L12 35z"/>' +
+        '<path fill="#cfd8dc" d="M8 34l2-2 3.5 3.3-2 1.7z"/>' +
+        '<path fill="#b0bec5" opacity="0.9" d="M26 12l1.2-1 3.8 3.5L28.8 14.5z"/>' +
         "</svg>";
       var SVG_CURSOR_BUCKET =
         '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
@@ -749,8 +804,21 @@
           ", crosshair"
         );
       }
-      var CURSOR_PEN = cursorFromSvgMarkup(SVG_CURSOR_PEN, 8, 29);
       var CURSOR_BUCKET = cursorFromSvgMarkup(SVG_CURSOR_BUCKET, 6, 12);
+      var brushLineCursor = {
+        pencil: cursorFromSvgMarkup(SVG_CURSOR_PENCIL, 7, 34),
+        pen: cursorFromSvgMarkup(SVG_CURSOR_PEN, 10, 33),
+        brush: cursorFromSvgMarkup(SVG_CURSOR_BRUSH, 8, 32),
+        crayon: cursorFromSvgMarkup(SVG_CURSOR_CRAYON, 11, 34),
+        spray: cursorFromSvgMarkup(SVG_CURSOR_SPRAY, 10, 12),
+        marker: cursorFromSvgMarkup(SVG_CURSOR_MARKER, 8, 34),
+        neon: cursorFromSvgMarkup(SVG_CURSOR_NEON, 9, 31),
+        chalk: cursorFromSvgMarkup(SVG_CURSOR_CHALK, 10, 33)
+      };
+
+      function lineCursorForBrushKind(kind) {
+        return brushLineCursor[kind] || brushLineCursor.pen;
+      }
 
       function refreshCanvasCursor() {
         if (!canvas) return;
@@ -762,7 +830,7 @@
           canvas.style.cursor = CURSOR_BUCKET;
           return;
         }
-        canvas.style.cursor = CURSOR_PEN;
+        canvas.style.cursor = lineCursorForBrushKind(brushKind);
       }
 
       var colorNames = {
@@ -2149,6 +2217,7 @@
           activeStamp = "";
           syncStampBtnHighlight();
           eraser = false;
+          fillBucketCursor = false;
           updateMenuLabels();
           closeAllPopups();
         });
