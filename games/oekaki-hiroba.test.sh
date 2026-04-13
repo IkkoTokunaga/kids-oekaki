@@ -25,6 +25,8 @@ check 'popup-title">スタンプ</p>'
 check "やみなべ"
 check "テンプレート"
 check "いろ"
+check "🎨 せん:"
+check "refreshCanvasCursor"
 check "btnFill"
 check "popupFillColors"
 check "fillSwatchMount"

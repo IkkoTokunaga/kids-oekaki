@@ -542,7 +542,7 @@
   </header>
 
   <div class="toolbar" role="toolbar" aria-label="どうぐ">
-    <button type="button" class="menu-btn" data-popup-open="popupColors" id="btnColors">🎨 いろ: くろ</button>
+    <button type="button" class="menu-btn" data-popup-open="popupColors" id="btnColors">🎨 せん: くろ</button>
     <button type="button" class="menu-btn" data-popup-open="popupFillColors" id="btnFill">🪣 ぬる: くろ</button>
     <button type="button" class="menu-btn" data-popup-open="popupSizes" id="btnSizes">🖌️ タッチ: ペン</button>
     <button type="button" class="action-btn action-clear" id="btnClear">ぜんぶ けす</button>
@@ -551,9 +551,9 @@
     <button type="button" class="menu-btn" data-popup-open="popupStamps" id="btnStamps">✨ スタンプ: なし</button>
   </div>
 
-  <div id="popupColors" class="popup" role="dialog" aria-label="いろ">
+  <div id="popupColors" class="popup" role="dialog" aria-label="せん">
     <div class="popup-card">
-      <div class="popup-head"><p class="popup-title">いろ</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
+      <div class="popup-head"><p class="popup-title">せん</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
       <div class="popup-body">
         <button type="button" class="swatch" data-c="#e53935" style="background:#e53935" title="あか" aria-label="あか"></button>
         <button type="button" class="swatch" data-c="#ef5350" style="background:#ef5350" title="コーラル" aria-label="コーラル"></button>
@@ -720,6 +720,45 @@
       var activeTemplate = "";
       var lastFrameW = 0;
       var lastFrameH = 0;
+
+      var SVG_CURSOR_PEN =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
+        '<path fill="#263238" stroke="#fff" stroke-width="1.2" stroke-linejoin="round" d="M4 28 22 10 26 14 10 28z"/>' +
+        '<path fill="#ff9800" d="M22 10 26 6 30 10 26 14z"/>' +
+        "</svg>";
+      var SVG_CURSOR_BUCKET =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
+        '<path fill="#5c6bc0" stroke="#fff" stroke-width="1" d="M7 9h18v2.5L22.5 25H9.5L7 11.5z"/>' +
+        '<ellipse fill="#3949ab" cx="16" cy="9" rx="10" ry="2.8"/>' +
+        '<path fill="#ef5350" d="M6 11c-2.5 4-2 9-1 11"/>' +
+        "</svg>";
+      function cursorFromSvgMarkup(markup, hx, hy) {
+        return (
+          'url("data:image/svg+xml;charset=utf-8,' +
+          encodeURIComponent(markup) +
+          '") ' +
+          hx +
+          " " +
+          hy +
+          ", crosshair"
+        );
+      }
+      var CURSOR_PEN = cursorFromSvgMarkup(SVG_CURSOR_PEN, 5, 27);
+      var CURSOR_BUCKET = cursorFromSvgMarkup(SVG_CURSOR_BUCKET, 6, 12);
+
+      function refreshCanvasCursor() {
+        if (!canvas) return;
+        if (activeStamp) {
+          canvas.style.cursor = "pointer";
+          return;
+        }
+        if (drawing && tapMaybe && brushKind !== "spray") {
+          canvas.style.cursor = CURSOR_BUCKET;
+          return;
+        }
+        canvas.style.cursor = CURSOR_PEN;
+      }
+
       var colorNames = {
         "#e53935": "あか",
         "#fb8c00": "オレンジ",
@@ -1118,6 +1157,7 @@
         drawing = true;
         last = getPoint(ev);
         tapMaybe = brushKind !== "spray";
+        refreshCanvasCursor();
         if (brushKind === "spray") {
           sprayAt(last);
           return;
@@ -1133,6 +1173,7 @@
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (tapMaybe && dist > TAP_PX) {
           tapMaybe = false;
+          refreshCanvasCursor();
           ctx.beginPath();
           applyStrokeStyle();
           ctx.moveTo(last.x, last.y);
@@ -1221,6 +1262,7 @@
         drawing = false;
         last = null;
         ctx.globalCompositeOperation = "source-over";
+        refreshCanvasCursor();
       }
 
       function placeStamp(point) {
@@ -1978,13 +2020,13 @@
         var stampLabel = activeStamp || "なし";
         if (btnColors) {
           if (eraser) {
-            btnColors.innerHTML = '🎨 いろ: <span class="color-chip eraser" aria-hidden="true"></span>';
+            btnColors.innerHTML = '🎨 せん: <span class="color-chip eraser" aria-hidden="true"></span>';
           } else if (rainbowInk) {
-            btnColors.innerHTML = '🎨 いろ: <span class="color-chip" aria-hidden="true" style="background:conic-gradient(#ff1744,#ff9100,#ffea00,#00e676,#00b0ff,#7c4dff,#ff1744)"></span>';
+            btnColors.innerHTML = '🎨 せん: <span class="color-chip" aria-hidden="true" style="background:conic-gradient(#ff1744,#ff9100,#ffea00,#00e676,#00b0ff,#7c4dff,#ff1744)"></span>';
           } else {
-            btnColors.innerHTML = '🎨 いろ: <span class="color-chip" aria-hidden="true" style="background:' + color + '"></span>';
+            btnColors.innerHTML = '🎨 せん: <span class="color-chip" aria-hidden="true" style="background:' + color + '"></span>';
           }
-          btnColors.setAttribute("aria-label", "いろ");
+          btnColors.setAttribute("aria-label", "せん");
         }
         if (btnFill) {
           if (fillEraser) {
@@ -2000,6 +2042,7 @@
         if (btnSizes) btnSizes.textContent = "🖌️ タッチ: " + sizeLabel;
         if (btnTemplates) btnTemplates.textContent = "🖼️ テンプレート: " + templateLabel;
         if (btnStamps) btnStamps.textContent = "✨ スタンプ: " + stampLabel;
+        refreshCanvasCursor();
       }
 
       function cloneFillSwatches() {
@@ -2159,6 +2202,7 @@
         });
       });
 
+      canvas.addEventListener("mouseenter", refreshCanvasCursor);
       canvas.addEventListener("mousedown", startDraw);
       canvas.addEventListener("mousemove", moveDraw);
       canvas.addEventListener("mouseup", endDraw);
