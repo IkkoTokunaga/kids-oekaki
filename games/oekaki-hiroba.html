@@ -317,6 +317,11 @@
       opacity: 0.88;
     }
 
+    .touch-sample.line-xthin {
+      height: 0.09rem;
+      width: 1.1rem;
+    }
+
     .touch-sample.line-thin {
       height: 0.16rem;
       width: 1.1rem;
@@ -329,6 +334,11 @@
 
     .touch-sample.line-thick {
       height: 0.52rem;
+      width: 1.1rem;
+    }
+
+    .touch-sample.line-xthick {
+      height: 0.68rem;
       width: 1.1rem;
     }
 
@@ -560,7 +570,7 @@
     <button type="button" class="menu-btn" data-popup-open="popupColors" id="btnColors">🎨 せん: くろ</button>
     <button type="button" class="menu-btn" data-popup-open="popupFillColors" id="btnFill">🪣 ぬる: くろ</button>
     <button type="button" class="menu-btn" data-popup-open="popupSizes" id="btnSizes">🖌️ タッチ: ペン</button>
-    <button type="button" class="menu-btn" data-popup-open="popupLineThickness" id="btnLineThickness">📏 せん: ふつう</button>
+    <button type="button" class="menu-btn" data-popup-open="popupLineThickness" id="btnLineThickness">📏 ふとさ: ふつう</button>
     <button type="button" class="action-btn action-clear" id="btnClear">ぜんぶ けす</button>
     <button type="button" class="action-btn action-chaos" id="btnYaminabe">やみなべ</button>
     <button type="button" class="menu-btn" data-popup-open="popupTemplates" id="btnTemplates">🖼️ テンプレート: なし</button>
@@ -670,13 +680,15 @@
     </div>
   </div>
 
-  <div id="popupLineThickness" class="popup" role="dialog" aria-label="せんの太さ">
+  <div id="popupLineThickness" class="popup" role="dialog" aria-label="ふとさ">
     <div class="popup-card">
-      <div class="popup-head"><p class="popup-title">せんの太さ</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
+      <div class="popup-head"><p class="popup-title">ふとさ</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
       <div class="popup-body">
+        <button type="button" class="size-btn thickness-btn" data-thickness="xthin"><span class="touch-sample line-xthin" aria-hidden="true"></span><span class="size-label">ごくほそ</span></button>
         <button type="button" class="size-btn thickness-btn" data-thickness="thin"><span class="touch-sample line-thin" aria-hidden="true"></span><span class="size-label">ほそい</span></button>
         <button type="button" class="size-btn thickness-btn on" data-thickness="normal"><span class="touch-sample line-normal" aria-hidden="true"></span><span class="size-label">ふつう</span></button>
         <button type="button" class="size-btn thickness-btn" data-thickness="thick"><span class="touch-sample line-thick" aria-hidden="true"></span><span class="size-label">ふとい</span></button>
+        <button type="button" class="size-btn thickness-btn" data-thickness="xthick"><span class="touch-sample line-xthick" aria-hidden="true"></span><span class="size-label">ごくぶと</span></button>
       </div>
     </div>
   </div>
@@ -872,13 +884,17 @@
         chalk: "チョーク"
       };
       var thicknessNames = {
+        xthin: "ごくほそ",
         thin: "ほそい",
         normal: "ふつう",
-        thick: "ふとい"
+        thick: "ふとい",
+        xthick: "ごくぶと"
       };
       function lineThicknessMul() {
+        if (lineThicknessKey === "xthin") return 0.38;
         if (lineThicknessKey === "thin") return 0.58;
         if (lineThicknessKey === "thick") return 1.55;
+        if (lineThicknessKey === "xthick") return 2.05;
         return 1;
       }
       function effectiveLineW() {
@@ -2168,8 +2184,8 @@
         }
         if (btnSizes) btnSizes.textContent = "🖌️ タッチ: " + sizeLabel;
         if (btnLineThickness) {
-          btnLineThickness.textContent = "📏 せん: " + thickLabel;
-          btnLineThickness.setAttribute("aria-label", "せんの太さ");
+          btnLineThickness.textContent = "📏 ふとさ: " + thickLabel;
+          btnLineThickness.setAttribute("aria-label", "ふとさ");
         }
         if (btnTemplates) btnTemplates.textContent = "🖼️ テンプレート: " + templateLabel;
         if (btnStamps) btnStamps.textContent = "✨ スタンプ: " + stampLabel;
