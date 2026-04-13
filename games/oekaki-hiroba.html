@@ -228,7 +228,8 @@
       gap: 0.45rem;
     }
 
-    .swatch {
+    .swatch,
+    .swatch-fill {
       width: 2.15rem;
       height: 2.15rem;
       border-radius: 50%;
@@ -239,21 +240,25 @@
       transition: transform 0.1s ease;
     }
 
-    .swatch:active {
+    .swatch:active,
+    .swatch-fill:active {
       transform: scale(0.92);
     }
 
-    .swatch.on {
+    .swatch.on,
+    .swatch-fill.on {
       outline: 4px solid #ff6f00;
       outline-offset: 2px;
       transform: scale(1.08);
     }
 
-    .swatch[data-c="eraser"] {
+    .swatch[data-c="eraser"],
+    .swatch-fill[data-c="eraser"] {
       background: linear-gradient(135deg, #eceff1 45%, #b0bec5 45%, #b0bec5 55%, #eceff1 55%);
     }
 
-    .swatch[data-c="rainbow"] {
+    .swatch[data-c="rainbow"],
+    .swatch-fill[data-c="rainbow"] {
       background: conic-gradient(
         #ff1744 0deg,
         #ff9100 60deg,
@@ -538,6 +543,7 @@
 
   <div class="toolbar" role="toolbar" aria-label="どうぐ">
     <button type="button" class="menu-btn" data-popup-open="popupColors" id="btnColors">🎨 いろ: くろ</button>
+    <button type="button" class="menu-btn" data-popup-open="popupFillColors" id="btnFill">🪣 ぬる: くろ</button>
     <button type="button" class="menu-btn" data-popup-open="popupSizes" id="btnSizes">🖌️ タッチ: ペン</button>
     <button type="button" class="action-btn action-clear" id="btnClear">ぜんぶ けす</button>
     <button type="button" class="action-btn action-chaos" id="btnYaminabe">やみなべ</button>
@@ -625,6 +631,13 @@
     </div>
   </div>
 
+  <div id="popupFillColors" class="popup" role="dialog" aria-label="ぬるいろ">
+    <div class="popup-card">
+      <div class="popup-head"><p class="popup-title">ぬる いろ</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
+      <div class="popup-body" id="fillSwatchMount"></div>
+    </div>
+  </div>
+
   <div id="popupSizes" class="popup" role="dialog" aria-label="タッチ">
     <div class="popup-card">
       <div class="popup-head"><p class="popup-title">えがきタッチ</p><button type="button" class="popup-close" data-popup-close>とじる</button></div>
@@ -699,6 +712,10 @@
       var last = null;
       var eraser = false;
       var rainbowInk = false;
+      var fillColor = "#212121";
+      var fillEraser = false;
+      var fillRainbow = false;
+      var tapMaybe = false;
       var activeStamp = "";
       var activeTemplate = "";
       var lastFrameW = 0;
@@ -951,6 +968,147 @@
         };
       }
 
+      var TAP_PX = 6;
+
+      function hslHueToRgb(h) {
+        h = ((Math.floor(h) % 360) + 360) % 360;
+        var s = 1;
+        var l = 0.5;
+        var c = (1 - Math.abs(2 * l - 1)) * s;
+        var hp = h / 60;
+        var x = c * (1 - Math.abs((hp % 2) - 1));
+        var r1;
+        var g1;
+        var b1;
+        if (hp < 1) {
+          r1 = c;
+          g1 = x;
+          b1 = 0;
+        } else if (hp < 2) {
+          r1 = x;
+          g1 = c;
+          b1 = 0;
+        } else if (hp < 3) {
+          r1 = 0;
+          g1 = c;
+          b1 = x;
+        } else if (hp < 4) {
+          r1 = 0;
+          g1 = x;
+          b1 = c;
+        } else if (hp < 5) {
+          r1 = x;
+          g1 = 0;
+          b1 = c;
+        } else {
+          r1 = c;
+          g1 = 0;
+          b1 = x;
+        }
+        var m = l - c / 2;
+        return [Math.round((r1 + m) * 255), Math.round((g1 + m) * 255), Math.round((b1 + m) * 255)];
+      }
+
+      function hexToRgb(hex) {
+        var h = hex.replace("#", "");
+        return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+      }
+
+      function floodFillAt(point) {
+        var lw = frame.clientWidth;
+        var lh = frame.clientHeight;
+        var w = canvas.width;
+        var h = canvas.height;
+        if (lw < 1 || lh < 1 || w < 1 || h < 1) return;
+        var ix = Math.max(0, Math.min(w - 1, Math.floor((point.x / lw) * w)));
+        var iy = Math.max(0, Math.min(h - 1, Math.floor((point.y / lh) * h)));
+
+        var compCv = document.createElement("canvas");
+        compCv.width = w;
+        compCv.height = h;
+        var compCtx = compCv.getContext("2d");
+        compCtx.drawImage(bgCanvas, 0, 0);
+        compCtx.drawImage(canvas, 0, 0);
+        var comp = compCtx.getImageData(0, 0, w, h);
+        var cd = comp.data;
+
+        var drawIm = ctx.getImageData(0, 0, w, h);
+        var dd = drawIm.data;
+
+        var si = (iy * w + ix) * 4;
+        var sr = cd[si];
+        var sg = cd[si + 1];
+        var sb = cd[si + 2];
+        var sa = cd[si + 3];
+
+        var fr;
+        var fg;
+        var fb;
+        var fa;
+        if (fillEraser) {
+          fr = 0;
+          fg = 0;
+          fb = 0;
+          fa = 0;
+        } else if (fillRainbow) {
+          var rgb = hslHueToRgb(Date.now() / 18);
+          fr = rgb[0];
+          fg = rgb[1];
+          fb = rgb[2];
+          fa = 255;
+        } else {
+          var hx = hexToRgb(fillColor);
+          fr = hx[0];
+          fg = hx[1];
+          fb = hx[2];
+          fa = 255;
+        }
+
+        var tol = 38;
+        var tolA = 48;
+        function matchComp(i) {
+          return (
+            Math.abs(cd[i] - sr) <= tol &&
+            Math.abs(cd[i + 1] - sg) <= tol &&
+            Math.abs(cd[i + 2] - sb) <= tol &&
+            Math.abs(cd[i + 3] - sa) <= tolA
+          );
+        }
+
+        if (!fillEraser) {
+          if (Math.abs(sr - fr) <= tol && Math.abs(sg - fg) <= tol && Math.abs(sb - fb) <= tol && Math.abs(sa - fa) <= tolA) {
+            return;
+          }
+        }
+
+        var maxPx = Math.min(w * h, 1800000);
+        var visited = new Uint8Array(w * h);
+        var stack = [ix, iy];
+        var filled = 0;
+
+        while (stack.length && filled < maxPx) {
+          var cy = stack.pop();
+          var cx = stack.pop();
+          if (cx < 0 || cy < 0 || cx >= w || cy >= h) continue;
+          var k = cy * w + cx;
+          if (visited[k]) continue;
+          var ci = k * 4;
+          if (!matchComp(ci)) continue;
+          visited[k] = 1;
+          filled += 1;
+          dd[ci] = fr;
+          dd[ci + 1] = fg;
+          dd[ci + 2] = fb;
+          dd[ci + 3] = fa;
+          stack.push(cx, cy - 1);
+          stack.push(cx, cy + 1);
+          stack.push(cx - 1, cy);
+          stack.push(cx + 1, cy);
+        }
+
+        ctx.putImageData(drawIm, 0, 0);
+      }
+
       function startDraw(ev) {
         if (ev.type === "touchstart") ev.preventDefault();
         if (activeStamp) {
@@ -959,15 +1117,11 @@
         }
         drawing = true;
         last = getPoint(ev);
+        tapMaybe = brushKind !== "spray";
         if (brushKind === "spray") {
           sprayAt(last);
           return;
         }
-        ctx.beginPath();
-        applyStrokeStyle();
-        ctx.moveTo(last.x, last.y);
-        ctx.lineTo(last.x + 0.05, last.y + 0.05);
-        ctx.stroke();
       }
 
       function moveDraw(ev) {
@@ -977,6 +1131,17 @@
         var dx = p.x - last.x;
         var dy = p.y - last.y;
         var dist = Math.sqrt(dx * dx + dy * dy);
+        if (tapMaybe && dist > TAP_PX) {
+          tapMaybe = false;
+          ctx.beginPath();
+          applyStrokeStyle();
+          ctx.moveTo(last.x, last.y);
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+          last = p;
+          return;
+        }
+        if (tapMaybe) return;
         if (brushKind === "spray") {
           var step = 4;
           var steps = Math.max(1, Math.floor(dist / step));
@@ -1043,6 +1208,16 @@
 
       function endDraw(ev) {
         if (ev && ev.type === "touchend") ev.preventDefault();
+        if (drawing && tapMaybe && brushKind !== "spray") {
+          floodFillAt(last);
+        } else if (drawing && tapMaybe) {
+          ctx.beginPath();
+          applyStrokeStyle();
+          ctx.moveTo(last.x, last.y);
+          ctx.lineTo(last.x + 0.05, last.y + 0.05);
+          ctx.stroke();
+        }
+        tapMaybe = false;
         drawing = false;
         last = null;
         ctx.globalCompositeOperation = "source-over";
@@ -1794,6 +1969,7 @@
 
       function updateMenuLabels() {
         var btnColors = document.getElementById("btnColors");
+        var btnFill = document.getElementById("btnFill");
         var btnSizes = document.getElementById("btnSizes");
         var btnTemplates = document.getElementById("btnTemplates");
         var btnStamps = document.getElementById("btnStamps");
@@ -1810,9 +1986,55 @@
           }
           btnColors.setAttribute("aria-label", "いろ");
         }
+        if (btnFill) {
+          if (fillEraser) {
+            btnFill.innerHTML = '🪣 ぬる: <span class="color-chip eraser" aria-hidden="true"></span>';
+          } else if (fillRainbow) {
+            btnFill.innerHTML =
+              '🪣 ぬる: <span class="color-chip" aria-hidden="true" style="background:conic-gradient(#ff1744,#ff9100,#ffea00,#00e676,#00b0ff,#7c4dff,#ff1744)"></span>';
+          } else {
+            btnFill.innerHTML = '🪣 ぬる: <span class="color-chip" aria-hidden="true" style="background:' + fillColor + '"></span>';
+          }
+          btnFill.setAttribute("aria-label", "ぬるいろ");
+        }
         if (btnSizes) btnSizes.textContent = "🖌️ タッチ: " + sizeLabel;
         if (btnTemplates) btnTemplates.textContent = "🖼️ テンプレート: " + templateLabel;
         if (btnStamps) btnStamps.textContent = "✨ スタンプ: " + stampLabel;
+      }
+
+      function cloneFillSwatches() {
+        var mount = document.getElementById("fillSwatchMount");
+        var src = document.querySelector("#popupColors .popup-body");
+        if (!mount || !src) return;
+        mount.innerHTML = "";
+        src.querySelectorAll(".swatch").forEach(function (sw) {
+          var cl = sw.cloneNode(true);
+          cl.classList.remove("swatch");
+          cl.classList.add("swatch-fill");
+          mount.appendChild(cl);
+        });
+        mount.querySelectorAll(".swatch-fill").forEach(function (b) {
+          b.addEventListener("click", function () {
+            mount.querySelectorAll(".swatch-fill").forEach(function (s) {
+              s.classList.remove("on");
+            });
+            b.classList.add("on");
+            var c = b.getAttribute("data-c");
+            if (c === "eraser") {
+              fillEraser = true;
+              fillRainbow = false;
+            } else if (c === "rainbow") {
+              fillEraser = false;
+              fillRainbow = true;
+            } else {
+              fillEraser = false;
+              fillRainbow = false;
+              fillColor = c;
+            }
+            updateMenuLabels();
+            closeAllPopups();
+          });
+        });
       }
 
       function bindPopupControls() {
@@ -1958,6 +2180,7 @@
 
       window.addEventListener("load", function () {
         renderStampAccordion();
+        cloneFillSwatches();
         bindPopupControls();
         syncSize();
         updateMenuLabels();
