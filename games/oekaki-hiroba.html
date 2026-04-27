@@ -2161,7 +2161,7 @@
           if (w > 0 && h > 0 && iw > 0 && ih > 0) {
             clearCanvasWhite();
             bgCtx.save();
-            var scale = Math.max(w / iw, h / ih);
+            var scale = Math.min(w / iw, h / ih);
             var dw = iw * scale;
             var dh = ih * scale;
             var dx = (w - dw) / 2;
