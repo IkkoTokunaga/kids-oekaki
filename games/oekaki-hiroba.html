@@ -574,10 +574,12 @@
     <button type="button" class="action-btn action-clear" id="btnClear">ぜんぶ けす</button>
     <button type="button" class="action-btn action-chaos" id="btnYaminabe">やみなべ</button>
     <button type="button" class="menu-btn" id="btnPhotoBg">📷 しゃしん背景</button>
+    <button type="button" class="menu-btn" id="btnCameraBg">📸 さつえい背景</button>
     <button type="button" class="menu-btn" data-popup-open="popupTemplates" id="btnTemplates">🖼️ テンプレート: なし</button>
     <button type="button" class="menu-btn" data-popup-open="popupStamps" id="btnStamps">✨ スタンプ: なし</button>
   </div>
   <input type="file" id="photoBgInput" accept="image/*" hidden />
+  <input type="file" id="cameraBgInput" accept="image/*" capture="environment" hidden />
 
   <div id="popupColors" class="popup" role="dialog" aria-label="せん">
     <div class="popup-card">
@@ -2395,6 +2397,21 @@
       });
 
       document.getElementById("photoBgInput").addEventListener("change", function (ev) {
+        var picker = ev.target;
+        var file = picker && picker.files && picker.files[0] ? picker.files[0] : null;
+        applyPhotoBackground(file);
+        if (picker) {
+          picker.value = "";
+        }
+      });
+
+      document.getElementById("btnCameraBg").addEventListener("click", function () {
+        var picker = document.getElementById("cameraBgInput");
+        if (!picker) return;
+        picker.click();
+      });
+
+      document.getElementById("cameraBgInput").addEventListener("change", function (ev) {
         var picker = ev.target;
         var file = picker && picker.files && picker.files[0] ? picker.files[0] : null;
         applyPhotoBackground(file);
