@@ -738,6 +738,7 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/heic2any/dist/heic2any.min.js"></script>
   <script>
     (function () {
       "use strict";
@@ -2149,11 +2150,21 @@
         ctx.restore();
       }
 
-      function applyPhotoBackground(file) {
-        if (!file || !file.type || file.type.indexOf("image/") !== 0) {
-          return;
-        }
-        var objectUrl = URL.createObjectURL(file);
+      function isHeicLike(file) {
+        if (!file) return false;
+        var t = (file.type || "").toLowerCase();
+        var n = (file.name || "").toLowerCase();
+        return (
+          t === "image/heic" ||
+          t === "image/heif" ||
+          t === "image/heic-sequence" ||
+          t === "image/heif-sequence" ||
+          /\.hei(c|f|cs|fs)$/.test(n)
+        );
+      }
+
+      function drawPhotoBlobToBackground(blob) {
+        var objectUrl = URL.createObjectURL(blob);
         var img = new Image();
         img.onload = function () {
           var w = frame.clientWidth;
@@ -2181,8 +2192,35 @@
           URL.revokeObjectURL(objectUrl);
           img.onload = null;
           img.onerror = null;
+          alert("この画像は よみこめませんでした。");
         };
         img.src = objectUrl;
+      }
+
+      function applyPhotoBackground(file) {
+        if (!file) return;
+        var isImageType = file.type && file.type.indexOf("image/") === 0;
+        if (!isImageType && !isHeicLike(file)) return;
+
+        if (!isHeicLike(file)) {
+          drawPhotoBlobToBackground(file);
+          return;
+        }
+
+        if (typeof window.heic2any !== "function") {
+          alert("HEIC へんかんの じゅんびが できていません。");
+          return;
+        }
+
+        window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 })
+          .then(function (resultBlob) {
+            var blob = Array.isArray(resultBlob) ? resultBlob[0] : resultBlob;
+            if (!blob) throw new Error("convert");
+            drawPhotoBlobToBackground(blob);
+          })
+          .catch(function () {
+            alert("HEIC の へんかんに しっぱいしました。");
+          });
       }
 
       function closeAllPopups() {
