@@ -1,0 +1,33 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="handle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A7F3D0" />
+      <stop offset="100%" stop-color="#6EE7B7" />
+    </linearGradient>
+    <linearGradient id="metal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBCFE8" />
+      <stop offset="100%" stop-color="#F9A8D4" />
+    </linearGradient>
+    <linearGradient id="bristle" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FEF3C7" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+  </defs>
+
+  <rect x="46" y="120" width="420" height="272" rx="136" fill="url(#handle)" transform="rotate(-30 256 256)" />
+  <rect x="322" y="176" width="92" height="164" rx="36" fill="url(#metal)" transform="rotate(-30 368 258)" />
+  <path
+    d="M372 142C416 120 458 120 486 142C468 198 430 236 384 252C364 216 360 174 372 142Z"
+    fill="url(#bristle)"
+    stroke="#B45309"
+    stroke-width="10"
+    stroke-linejoin="round"
+  />
+
+  <circle cx="180" cy="286" r="10" fill="#0F172A" />
+  <circle cx="216" cy="264" r="10" fill="#0F172A" />
+  <path d="M168 334C188 352 222 352 242 334" stroke="#0F172A" stroke-width="10" stroke-linecap="round" fill="none" />
+
+  <circle cx="146" cy="324" r="14" fill="#FBCFE8" />
+  <circle cx="246" cy="266" r="14" fill="#FBCFE8" />
+</svg>
