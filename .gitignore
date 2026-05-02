@@ -1,1 +1,42 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Next.js（ビルド・開発キャッシュ）
+.next/
+out/
+
+# 本番ビルド成果物（使う場合）
+dist/
+build/
+
+# ログ
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 環境変数（ローカル・秘密）
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel CLI
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# テスト
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# エディタ・IDE（共有設定をコミットする場合は除外しない）
+.idea/
+
+# Turbopack / Turborepo 利用時
+.turbo
