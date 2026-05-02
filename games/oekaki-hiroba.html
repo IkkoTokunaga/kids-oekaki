@@ -113,33 +113,181 @@
       position: relative;
       z-index: 1;
       flex-shrink: 0;
-      margin: 0 0.45rem 0.3rem;
-      padding: 0.42rem 0.4rem 0.45rem;
+      margin: 0 0.4rem 0.3rem;
+      padding: 0.4rem 0.4rem 0.45rem;
       background: var(--panel);
       border-radius: 1.1rem;
       box-shadow: 0 4px 18px var(--shadow);
       border: 3px solid #ffb74d;
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
-      gap: 0.35rem;
+      gap: 0.32rem;
     }
 
-    .menu-btn {
-      min-height: 2.1rem;
-      padding: 0 0.8rem;
-      border: 3px solid #ffb74d;
-      border-radius: 0.55rem;
-      background: #fff8e1;
-      color: #5d4037;
-      font-size: clamp(0.75rem, 2.8vw, 0.9rem);
-      font-weight: 800;
+    .tool-btn {
+      position: relative;
+      min-width: 3.5rem;
+      max-width: 5.4rem;
+      min-height: 3.55rem;
+      padding: 0.18rem 0.28rem 0.22rem;
+      border-radius: 0.7rem;
+      border: 3px solid;
       cursor: pointer;
-      box-shadow: 0 3px 0 #fb8c00;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.1rem;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+      flex-shrink: 0;
+      flex-grow: 0;
+    }
+
+    .tool-btn:active {
+      transform: translateY(2px);
+    }
+
+    .tool-icon {
+      font-size: clamp(1.2rem, 4.6vw, 1.4rem);
+      line-height: 1;
+      filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.6));
+    }
+
+    .tool-name {
+      font-size: clamp(0.62rem, 2.2vw, 0.74rem);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .tool-state {
+      margin-top: 0.05rem;
+      font-size: clamp(0.55rem, 1.9vw, 0.66rem);
+      font-weight: 700;
+      white-space: nowrap;
+      max-width: 3.6rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: rgba(255, 255, 255, 0.78);
+      border-radius: 999px;
+      padding: 0.04rem 0.36rem;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      justify-content: center;
+      gap: 0.18rem;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    }
+
+    .tool-state .color-chip {
+      width: 0.85rem;
+      height: 0.85rem;
+    }
+
+    .tool-line {
+      background: #fff5f5;
+      border-color: #ef9a9a;
+      color: #c62828;
+      box-shadow: 0 3px 0 #e57373;
+    }
+
+    .tool-line:active {
+      box-shadow: 0 1px 0 #e57373;
+    }
+
+    .tool-fill {
+      background: #e3f2fd;
+      border-color: #64b5f6;
+      color: #0d47a1;
+      box-shadow: 0 3px 0 #42a5f5;
+    }
+
+    .tool-fill:active {
+      box-shadow: 0 1px 0 #42a5f5;
+    }
+
+    .tool-touch {
+      background: #f3e5f5;
+      border-color: #ba68c8;
+      color: #4a148c;
+      box-shadow: 0 3px 0 #ab47bc;
+    }
+
+    .tool-touch:active {
+      box-shadow: 0 1px 0 #ab47bc;
+    }
+
+    .tool-thick {
+      background: #efebe9;
+      border-color: #a1887f;
+      color: #3e2723;
+      box-shadow: 0 3px 0 #8d6e63;
+    }
+
+    .tool-thick:active {
+      box-shadow: 0 1px 0 #8d6e63;
+    }
+
+    .tool-photo {
+      background: #e0f7fa;
+      border-color: #4dd0e1;
+      color: #006064;
+      box-shadow: 0 3px 0 #26c6da;
+    }
+
+    .tool-photo:active {
+      box-shadow: 0 1px 0 #26c6da;
+    }
+
+    .tool-template {
+      background: #fffde7;
+      border-color: #fdd835;
+      color: #f57f17;
+      box-shadow: 0 3px 0 #fbc02d;
+    }
+
+    .tool-template:active {
+      box-shadow: 0 1px 0 #fbc02d;
+    }
+
+    .tool-stamp {
+      background: #fce4ec;
+      border-color: #f48fb1;
+      color: #ad1457;
+      box-shadow: 0 3px 0 #ec407a;
+    }
+
+    .tool-stamp:active {
+      box-shadow: 0 1px 0 #ec407a;
+    }
+
+    .tool-clear {
+      background: #ffcdd2;
+      border-color: #e57373;
+      color: #b71c1c;
+      box-shadow: 0 3px 0 #c62828;
+    }
+
+    .tool-clear:active {
+      box-shadow: 0 1px 0 #c62828;
+    }
+
+    .tool-chaos {
+      background: linear-gradient(135deg, #ff8a80 0%, #ffd180 45%, #80d8ff 100%);
+      border-color: #6a1b9a;
+      color: #3e103f;
+      box-shadow: 0 3px 0 #4a148c;
+    }
+
+    .tool-chaos:active {
+      box-shadow: 0 1px 0 #4a148c;
+    }
+
+    .tool-chaos .tool-name {
+      color: #1a0033;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
     }
 
     .color-chip {
@@ -157,9 +305,8 @@
       background: linear-gradient(135deg, #eceff1 45%, #b0bec5 45%, #b0bec5 55%, #eceff1 55%);
     }
 
-    .menu-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 0 #fb8c00;
+    .color-chip.rainbow {
+      background: conic-gradient(#ff1744, #ff9100, #ffea00, #00e676, #00b0ff, #7c4dff, #ff1744);
     }
 
     .popup {
@@ -386,35 +533,6 @@
       opacity: 0.8;
     }
 
-    .action-btn {
-      min-height: 2.15rem;
-      padding: 0 0.62rem;
-      font-size: clamp(0.74rem, 2.8vw, 0.88rem);
-      font-weight: 800;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      border: 3px solid;
-    }
-
-    .action-clear {
-      background: #ffcdd2;
-      border-color: #e57373;
-      color: #b71c1c;
-      box-shadow: 0 3px 0 #c62828;
-    }
-
-    .action-chaos {
-      background: linear-gradient(135deg, #ff1744 0%, #ffea00 45%, #00e5ff 100%);
-      border-color: #6a1b9a;
-      color: #3e103f;
-      box-shadow: 0 3px 0 #4a148c;
-    }
-
-    .action-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 0 #666;
-    }
-
     .canvas-shell {
       position: relative;
       z-index: 1;
@@ -562,15 +680,48 @@
 </head>
 <body>
   <div class="toolbar" role="toolbar" aria-label="どうぐ">
-    <button type="button" class="menu-btn" data-popup-open="popupColors" id="btnColors">🎨 せん: くろ</button>
-    <button type="button" class="menu-btn" data-popup-open="popupFillColors" id="btnFill">🪣 ぬる: くろ</button>
-    <button type="button" class="menu-btn" data-popup-open="popupSizes" id="btnSizes">🖌️ タッチ: ペン</button>
-    <button type="button" class="menu-btn" data-popup-open="popupLineThickness" id="btnLineThickness">📏 ふとさ: ふつう</button>
-    <button type="button" class="action-btn action-clear" id="btnClear">ぜんぶ けす</button>
-    <button type="button" class="action-btn action-chaos" id="btnYaminabe">やみなべ</button>
-    <button type="button" class="menu-btn" id="btnPhotoBg">📷 しゃしん背景</button>
-    <button type="button" class="menu-btn" data-popup-open="popupTemplates" id="btnTemplates">🖼️ テンプレート: なし</button>
-    <button type="button" class="menu-btn" data-popup-open="popupStamps" id="btnStamps">✨ スタンプ: なし</button>
+    <button type="button" class="tool-btn tool-line" data-popup-open="popupColors" id="btnColors" aria-label="せんの いろ">
+      <span class="tool-icon" aria-hidden="true">🖍️</span>
+      <span class="tool-name">せん</span>
+      <span class="tool-state" id="btnColorsState"><span class="color-chip" aria-hidden="true" style="background:#212121"></span></span>
+    </button>
+    <button type="button" class="tool-btn tool-fill" data-popup-open="popupFillColors" id="btnFill" aria-label="ぬる いろ">
+      <span class="tool-icon" aria-hidden="true">🪣</span>
+      <span class="tool-name">ぬる</span>
+      <span class="tool-state" id="btnFillState"><span class="color-chip" aria-hidden="true" style="background:#212121"></span></span>
+    </button>
+    <button type="button" class="tool-btn tool-touch" data-popup-open="popupSizes" id="btnSizes" aria-label="えがきタッチ">
+      <span class="tool-icon" aria-hidden="true">🖌️</span>
+      <span class="tool-name">タッチ</span>
+      <span class="tool-state" id="btnSizesState">ペン</span>
+    </button>
+    <button type="button" class="tool-btn tool-thick" data-popup-open="popupLineThickness" id="btnLineThickness" aria-label="ふとさ">
+      <span class="tool-icon" aria-hidden="true">📏</span>
+      <span class="tool-name">ふとさ</span>
+      <span class="tool-state" id="btnLineThicknessState">ふつう</span>
+    </button>
+    <button type="button" class="tool-btn tool-photo" id="btnPhotoBg" aria-label="しゃしんを はいけいに">
+      <span class="tool-icon" aria-hidden="true">📷</span>
+      <span class="tool-name">しゃしん</span>
+    </button>
+    <button type="button" class="tool-btn tool-template" data-popup-open="popupTemplates" id="btnTemplates" aria-label="テンプレート">
+      <span class="tool-icon" aria-hidden="true">🖼️</span>
+      <span class="tool-name">テンプレ</span>
+      <span class="tool-state" id="btnTemplatesState">なし</span>
+    </button>
+    <button type="button" class="tool-btn tool-stamp" data-popup-open="popupStamps" id="btnStamps" aria-label="スタンプ">
+      <span class="tool-icon" aria-hidden="true">✨</span>
+      <span class="tool-name">スタンプ</span>
+      <span class="tool-state" id="btnStampsState">なし</span>
+    </button>
+    <button type="button" class="tool-btn tool-chaos" id="btnYaminabe" aria-label="やみなべ">
+      <span class="tool-icon" aria-hidden="true">🌀</span>
+      <span class="tool-name">やみなべ</span>
+    </button>
+    <button type="button" class="tool-btn tool-clear" id="btnClear" aria-label="ぜんぶ けす">
+      <span class="tool-icon" aria-hidden="true">🧹</span>
+      <span class="tool-name">けす</span>
+    </button>
   </div>
   <input type="file" id="photoBgInput" accept="image/*" hidden />
 
@@ -2222,45 +2373,59 @@
         });
       }
 
+      function truncateStateLabel(label, max) {
+        if (!label) return label;
+        var limit = typeof max === "number" ? max : 3;
+        var chars = Array.from(String(label));
+        if (chars.length <= limit) return chars.join("");
+        return chars.slice(0, limit).join("") + "…";
+      }
+
       function updateMenuLabels() {
-        var btnColors = document.getElementById("btnColors");
-        var btnFill = document.getElementById("btnFill");
-        var btnSizes = document.getElementById("btnSizes");
-        var btnLineThickness = document.getElementById("btnLineThickness");
-        var btnTemplates = document.getElementById("btnTemplates");
-        var btnStamps = document.getElementById("btnStamps");
+        var btnColorsState = document.getElementById("btnColorsState");
+        var btnFillState = document.getElementById("btnFillState");
+        var btnSizesState = document.getElementById("btnSizesState");
+        var btnLineThicknessState = document.getElementById("btnLineThicknessState");
+        var btnTemplatesState = document.getElementById("btnTemplatesState");
+        var btnStampsState = document.getElementById("btnStampsState");
         var sizeLabel = brushNames[brushKind] || "ペン";
         var thickLabel = thicknessNames[lineThicknessKey] || thicknessNames.normal;
         var templateLabel = activeTemplate ? (templateNames[activeTemplate] || activeTemplate) : "なし";
         var stampLabel = activeStamp || "なし";
-        if (btnColors) {
+        if (btnColorsState) {
           if (eraser) {
-            btnColors.innerHTML = '🎨 せん: <span class="color-chip eraser" aria-hidden="true"></span>';
+            btnColorsState.innerHTML = '<span class="color-chip eraser" aria-hidden="true"></span>';
           } else if (rainbowInk) {
-            btnColors.innerHTML = '🎨 せん: <span class="color-chip" aria-hidden="true" style="background:conic-gradient(#ff1744,#ff9100,#ffea00,#00e676,#00b0ff,#7c4dff,#ff1744)"></span>';
+            btnColorsState.innerHTML = '<span class="color-chip rainbow" aria-hidden="true"></span>';
           } else {
-            btnColors.innerHTML = '🎨 せん: <span class="color-chip" aria-hidden="true" style="background:' + color + '"></span>';
+            btnColorsState.innerHTML = '<span class="color-chip" aria-hidden="true" style="background:' + color + '"></span>';
           }
-          btnColors.setAttribute("aria-label", "せん");
         }
-        if (btnFill) {
+        if (btnFillState) {
           if (fillEraser) {
-            btnFill.innerHTML = '🪣 ぬる: <span class="color-chip eraser" aria-hidden="true"></span>';
+            btnFillState.innerHTML = '<span class="color-chip eraser" aria-hidden="true"></span>';
           } else if (fillRainbow) {
-            btnFill.innerHTML =
-              '🪣 ぬる: <span class="color-chip" aria-hidden="true" style="background:conic-gradient(#ff1744,#ff9100,#ffea00,#00e676,#00b0ff,#7c4dff,#ff1744)"></span>';
+            btnFillState.innerHTML = '<span class="color-chip rainbow" aria-hidden="true"></span>';
           } else {
-            btnFill.innerHTML = '🪣 ぬる: <span class="color-chip" aria-hidden="true" style="background:' + fillColor + '"></span>';
+            btnFillState.innerHTML = '<span class="color-chip" aria-hidden="true" style="background:' + fillColor + '"></span>';
           }
-          btnFill.setAttribute("aria-label", "ぬるいろ");
         }
-        if (btnSizes) btnSizes.textContent = "🖌️ タッチ: " + sizeLabel;
-        if (btnLineThickness) {
-          btnLineThickness.textContent = "📏 ふとさ: " + thickLabel;
-          btnLineThickness.setAttribute("aria-label", "ふとさ");
+        if (btnSizesState) {
+          btnSizesState.textContent = truncateStateLabel(sizeLabel, 3);
+          btnSizesState.title = sizeLabel;
         }
-        if (btnTemplates) btnTemplates.textContent = "🖼️ テンプレート: " + templateLabel;
-        if (btnStamps) btnStamps.textContent = "✨ スタンプ: " + stampLabel;
+        if (btnLineThicknessState) {
+          btnLineThicknessState.textContent = truncateStateLabel(thickLabel, 3);
+          btnLineThicknessState.title = thickLabel;
+        }
+        if (btnTemplatesState) {
+          btnTemplatesState.textContent = truncateStateLabel(templateLabel, 3);
+          btnTemplatesState.title = templateLabel;
+        }
+        if (btnStampsState) {
+          btnStampsState.textContent = truncateStateLabel(stampLabel, 3);
+          btnStampsState.title = stampLabel;
+        }
         refreshCanvasCursor();
       }
 
