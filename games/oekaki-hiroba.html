@@ -274,6 +274,41 @@
       box-shadow: 0 1px 0 #c62828;
     }
 
+    .tool-undo {
+      background: #e8eaf6;
+      border-color: #7986cb;
+      color: #1a237e;
+      box-shadow: 0 3px 0 #5c6bc0;
+    }
+
+    .tool-undo:active {
+      box-shadow: 0 1px 0 #5c6bc0;
+    }
+
+    .tool-redo {
+      background: #e0f2f1;
+      border-color: #4db6ac;
+      color: #004d40;
+      box-shadow: 0 3px 0 #26a69a;
+    }
+
+    .tool-redo:active {
+      box-shadow: 0 1px 0 #26a69a;
+    }
+
+    .tool-btn:disabled,
+    .tool-btn[aria-disabled="true"] {
+      opacity: 0.42;
+      cursor: not-allowed;
+      filter: grayscale(0.55);
+    }
+
+    .tool-btn:disabled:active,
+    .tool-btn[aria-disabled="true"]:active {
+      transform: none;
+      box-shadow: 0 3px 0 transparent;
+    }
+
     .tool-chaos {
       background: linear-gradient(135deg, #ff8a80 0%, #ffd180 45%, #80d8ff 100%);
       border-color: #6a1b9a;
@@ -721,6 +756,14 @@
     <button type="button" class="tool-btn tool-clear" id="btnClear" aria-label="ぜんぶ けす">
       <span class="tool-icon" aria-hidden="true">🧹</span>
       <span class="tool-name">けす</span>
+    </button>
+    <button type="button" class="tool-btn tool-undo" id="btnUndo" aria-label="ひとつ もどす" disabled aria-disabled="true">
+      <span class="tool-icon" aria-hidden="true">↶</span>
+      <span class="tool-name">もどす</span>
+    </button>
+    <button type="button" class="tool-btn tool-redo" id="btnRedo" aria-label="ひとつ すすむ" disabled aria-disabled="true">
+      <span class="tool-icon" aria-hidden="true">↷</span>
+      <span class="tool-name">すすむ</span>
     </button>
   </div>
   <input type="file" id="photoBgInput" accept="image/*" hidden />
@@ -1430,6 +1473,7 @@
         if (ev.type === "touchstart") ev.preventDefault();
         if (activeStamp) {
           placeStamp(getPoint(ev));
+          pushHistory();
           return;
         }
         drawing = true;
@@ -1529,6 +1573,7 @@
 
       function endDraw(ev) {
         if (ev && ev.type === "touchend") ev.preventDefault();
+        var wasDrawing = drawing;
         if (drawing && tapMaybe && brushKind !== "spray") {
           if (fillBucketCursor) {
             floodFillAt(last);
@@ -1554,6 +1599,7 @@
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
         ctx.shadowColor = "transparent";
+        if (wasDrawing) pushHistory();
       }
 
       function placeStamp(point) {
@@ -2327,6 +2373,7 @@
             bgCtx.restore();
             activeTemplate = "photo";
             updateMenuLabels();
+            pushHistory();
           }
           URL.revokeObjectURL(objectUrl);
           img.onload = null;
@@ -2365,6 +2412,91 @@
           .catch(function () {
             alert("HEIC の へんかんに しっぱいしました。");
           });
+      }
+
+      var historyStack = [];
+      var historyIndex = -1;
+      var HISTORY_LIMIT = 15;
+
+      function snapshotCanvasNative(c) {
+        var off = document.createElement("canvas");
+        off.width = c.width;
+        off.height = c.height;
+        off.getContext("2d").drawImage(c, 0, 0);
+        return off;
+      }
+
+      function restoreCanvasNative(c, snap) {
+        var dpr = window.devicePixelRatio || 1;
+        var cctx = c.getContext("2d");
+        cctx.save();
+        cctx.setTransform(1, 0, 0, 1, 0, 0);
+        cctx.clearRect(0, 0, c.width, c.height);
+        if (snap) {
+          cctx.drawImage(snap, 0, 0, snap.width, snap.height, 0, 0, c.width, c.height);
+        }
+        cctx.restore();
+        cctx.setTransform(1, 0, 0, 1, 0, 0);
+        cctx.scale(dpr, dpr);
+      }
+
+      function pushHistory() {
+        if (canvas.width < 1 || canvas.height < 1) return;
+        if (historyIndex < historyStack.length - 1) {
+          historyStack.length = historyIndex + 1;
+        }
+        historyStack.push({
+          draw: snapshotCanvasNative(canvas),
+          bg: snapshotCanvasNative(bgCanvas)
+        });
+        if (historyStack.length > HISTORY_LIMIT) {
+          historyStack.shift();
+        }
+        historyIndex = historyStack.length - 1;
+        syncHistoryButtons();
+      }
+
+      function applyHistoryEntry(entry) {
+        if (!entry) return;
+        restoreCanvasNative(canvas, entry.draw);
+        restoreCanvasNative(bgCanvas, entry.bg);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowColor = "transparent";
+      }
+
+      function undoHistory() {
+        if (historyIndex <= 0) return;
+        historyIndex -= 1;
+        applyHistoryEntry(historyStack[historyIndex]);
+        syncHistoryButtons();
+      }
+
+      function redoHistory() {
+        if (historyIndex >= historyStack.length - 1) return;
+        historyIndex += 1;
+        applyHistoryEntry(historyStack[historyIndex]);
+        syncHistoryButtons();
+      }
+
+      function syncHistoryButtons() {
+        var u = document.getElementById("btnUndo");
+        var r = document.getElementById("btnRedo");
+        var canU = historyIndex > 0;
+        var canR = historyIndex >= 0 && historyIndex < historyStack.length - 1;
+        if (u) {
+          u.disabled = !canU;
+          u.setAttribute("aria-disabled", canU ? "false" : "true");
+        }
+        if (r) {
+          r.disabled = !canR;
+          r.setAttribute("aria-disabled", canR ? "false" : "true");
+        }
       }
 
       function closeAllPopups() {
@@ -2580,10 +2712,20 @@
 
       document.getElementById("btnClear").addEventListener("click", function () {
         clearCanvasWhite();
+        pushHistory();
       });
 
       document.getElementById("btnYaminabe").addEventListener("click", function () {
         runYaminabe();
+        pushHistory();
+      });
+
+      document.getElementById("btnUndo").addEventListener("click", function () {
+        undoHistory();
+      });
+
+      document.getElementById("btnRedo").addEventListener("click", function () {
+        redoHistory();
       });
 
       document.getElementById("btnPhotoBg").addEventListener("click", function () {
@@ -2624,6 +2766,7 @@
           if (type === "beach") drawBeachTemplate();
           updateMenuLabels();
           closeAllPopups();
+          pushHistory();
         });
       });
 
@@ -2650,12 +2793,26 @@
         window.addEventListener("resize", syncSize);
       }
 
+      document.addEventListener("keydown", function (ev) {
+        var meta = ev.ctrlKey || ev.metaKey;
+        if (!meta) return;
+        var key = (ev.key || "").toLowerCase();
+        if (key === "z" && !ev.shiftKey) {
+          ev.preventDefault();
+          undoHistory();
+        } else if ((key === "z" && ev.shiftKey) || key === "y") {
+          ev.preventDefault();
+          redoHistory();
+        }
+      });
+
       window.addEventListener("load", function () {
         renderStampAccordion();
         cloneFillSwatches();
         bindPopupControls();
         syncSize();
         updateMenuLabels();
+        pushHistory();
       });
     })();
   </script>
