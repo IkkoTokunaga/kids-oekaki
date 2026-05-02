@@ -18,7 +18,6 @@ check() {
   fi
 }
 
-check "おえかき ひろば"
 check "drawCanvas"
 check "ぜんぶ けす"
 check 'popup-title">スタンプ</p>'

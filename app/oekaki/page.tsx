@@ -12,7 +12,7 @@ export default async function OekakiPage() {
   return (
     <main className="h-dvh w-full">
       <iframe
-        title="おえかき ひろば"
+        title="おえかき"
         srcDoc={srcDoc}
         className="h-full w-full border-0"
         sandbox="allow-scripts allow-same-origin"
