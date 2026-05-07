@@ -17,10 +17,8 @@ export const metadata: Metadata = {
     description: "子ども向けの楽しいおえかきアプリ。",
     images: [
       {
-        url: "/og",
-        width: 1200,
-        height: 630,
-        alt: "キッズおえかき",
+        url: "/og-user.png",
+        alt: "キッズおえかきの作品画像",
       },
     ],
   },
@@ -28,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "おえかきひろば",
     description: "子ども向けの楽しいおえかきアプリ。",
-    images: ["/og"],
+    images: ["/og-user.png"],
   },
   icons: {
     icon: [
