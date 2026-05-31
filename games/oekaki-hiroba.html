@@ -1038,8 +1038,18 @@
         '<path d="M22 20a2 2 0 1 1-4 0c0-1.6 1.7-2.4 2-4 .3 1.6 2 2.4 2 4Z"/>';
 
       // ぬるモードの時に細かい部分を選択しやすくするため、バケツではなく「+」（クロスヘア）の形状にする
-      var LUCIDE_CROSSHAIR = '<path d="M12 5v14M5 12h14"/>';
-      var CURSOR_BUCKET = lucideToolCursor(LUCIDE_CROSSHAIR, 12, 12);
+      // 細かく選択できるよう、線の太さを細め（内側1.0px / 外枠2.2px）にしたカスタムSVGカーソルを生成
+      var CURSOR_BUCKET = (function () {
+        var svg =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">' +
+          '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+          '<g stroke="#ffffff" stroke-width="2.2">' +
+          '<path d="M12 5v14M5 12h14"/>' +
+          '</g><g stroke="#475569" stroke-width="1.0">' +
+          '<path d="M12 5v14M5 12h14"/>' +
+          '</g></g></svg>';
+        return cursorFromSvgMarkup(svg, 16, 16);
+      })();
       var brushLineCursor = {
         pencil: lucideToolCursor(LUCIDE_PENCIL, 5, 18),
         pen: lucideToolCursor(LUCIDE_PEN, 4.5, 17),
