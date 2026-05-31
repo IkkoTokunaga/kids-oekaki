@@ -1037,7 +1037,9 @@
         '<path d="M2 13h15"/>' +
         '<path d="M22 20a2 2 0 1 1-4 0c0-1.6 1.7-2.4 2-4 .3 1.6 2 2.4 2 4Z"/>';
 
-      var CURSOR_BUCKET = lucideToolCursor(LUCIDE_BUCKET, 9, 7);
+      // ぬるモードの時に細かい部分を選択しやすくするため、バケツではなく「+」（クロスヘア）の形状にする
+      var LUCIDE_CROSSHAIR = '<path d="M12 5v14M5 12h14"/>';
+      var CURSOR_BUCKET = lucideToolCursor(LUCIDE_CROSSHAIR, 12, 12);
       var brushLineCursor = {
         pencil: lucideToolCursor(LUCIDE_PENCIL, 5, 18),
         pen: lucideToolCursor(LUCIDE_PEN, 4.5, 17),
@@ -1502,6 +1504,7 @@
       function moveDraw(ev) {
         if (!drawing) return;
         if (ev.type === "touchmove") ev.preventDefault();
+        if (fillBucketCursor) return;
         var p = getPoint(ev);
         var dx = p.x - last.x;
         var dy = p.y - last.y;
